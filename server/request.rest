@@ -1,0 +1,350 @@
+### REGISTER
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Shreya Patel",
+  "email": "shreyapatel@gmail.com",
+  "password": "12345678"
+}
+
+###
+
+### ADMIN LOGIN
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "vedantpatel@gmail.com",
+  "password": "12345678"
+}
+
+### USER LOGIN
+
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "shreyapatel@gmail.com",
+  "password": "12345678"
+}
+
+###
+
+### GET PROFILE (Protected)
+GET http://localhost:5000/api/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5Mjc1NDQ3LCJleHAiOjE3Njk4ODAyNDd9.cYkxr43ewVk23vKvxDZsaHBuhKU4AMlJ3BqFt64fOLI
+
+
+
+
+
+
+###
+
+### GET all article series
+
+POST http://localhost:5000/api/admin/articles/series
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDgyOTI3OSwiZXhwIjoxNzcxNDM0MDc5fQ.V7rKOhpOlGnCEC4pJpkQ55g8TZJwAtbE90MGPSvcfF0
+Content-Type: application/json
+
+{
+  "title": "Ayurveda Basics",
+  "description": "Introduction to Ayurveda principles and practices.",
+  "order": 1
+}
+
+### GET all article series
+
+GET http://localhost:5000/api/articles/series
+
+### GET single article by slug
+
+GET http://localhost:5000/api/articles/series/ayurveda-basics
+
+### Create chapter in series
+
+POST http://localhost:5000/api/admin/articles/chapter
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDgyOTI3OSwiZXhwIjoxNzcxNDM0MDc5fQ.V7rKOhpOlGnCEC4pJpkQ55g8TZJwAtbE90MGPSvcfF0
+Content-Type: application/json
+
+{
+  "title": "Doshas",
+  "seriesId": "698cb633dbd3c189e2bb529d",
+  "order": 1
+}
+
+### GET chapters of a series
+
+GET http://localhost:5000/api/articles/ayurveda-basics/chapters
+
+
+### Create Topic in chapter
+
+POST http://localhost:5000/api/admin/articles/topic
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDgyOTI3OSwiZXhwIjoxNzcxNDM0MDc5fQ.V7rKOhpOlGnCEC4pJpkQ55g8TZJwAtbE90MGPSvcfF0
+
+{
+  "title": "What is Vata Dosha?",
+  "chapterId": "698d4664dc426250d1d9f0a9",
+  "content": "Vata dosha represents movement and air element...",
+  "tags": ["Dosha", "Basics"]
+}
+
+### Publish Topic
+
+PUT http://localhost:5000/api/admin/articles/topic/698ea944b558072b2ac2b315/publish
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDgyOTI3OSwiZXhwIjoxNzcxNDM0MDc5fQ.V7rKOhpOlGnCEC4pJpkQ55g8TZJwAtbE90MGPSvcfF0
+
+### GET Topics by chapter
+
+GET http://localhost:5000/api/articles/chapter/doshas/topics
+
+### GET Article 
+
+GET http://localhost:5000/api/articles/topic/what-is-vata-dosha
+
+
+
+
+
+### CONTRIBUTION WORKFLOW
+
+
+
+### USER: Submit contribution (new topic)
+POST http://localhost:5000/api/contributions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzcwOTU4MjI2LCJleHAiOjE3NzE1NjMwMjZ9.bdGXg6GOiG78uyBlrmzulHBJj8-uj2OpKNFhcb4e7Pw
+Content-Type: application/json
+
+{
+  "contributionType": "new_topic",
+  "title": "Sleep Hygiene in Ayurveda",
+  "chapterId": "698d4664dc426250d1d9f0a9",
+  "content": "Sleep routine according to Ayurveda...",
+  "tags": ["Lifestyle", "Sleep"]
+}
+
+### USER: Submit contribution (existing topic)
+POST http://localhost:5000/api/contributions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzcwOTU4MjI2LCJleHAiOjE3NzE1NjMwMjZ9.bdGXg6GOiG78uyBlrmzulHBJj8-uj2OpKNFhcb4e7Pw
+Content-Type: application/json
+
+{
+  "contributionType": "existing_topic",
+  "topicId": "698ea944b558072b2ac2b315",
+  "content": "Updated content suggestion for this topic...",
+  "tags": ["Dosha", "Vata", "Update"]
+}
+
+###
+
+### USER: View own contributions
+GET http://localhost:5000/api/contributions/mine
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzcwOTU4MjI2LCJleHAiOjE3NzE1NjMwMjZ9.bdGXg6GOiG78uyBlrmzulHBJj8-uj2OpKNFhcb4e7Pw
+
+###
+
+### ADMIN: View pending contributions
+GET http://localhost:5000/api/admin/contributions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk1ODQ2OCwiZXhwIjoxNzcxNTYzMjY4fQ.x9N9m-vGIeDmsoY8YksWzystL4N4upC_T0YL-R3DeMQ
+
+### ADMIN: View approved contributions
+GET http://localhost:5000/api/admin/contributions/all?status=approved
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk1ODQ2OCwiZXhwIjoxNzcxNTYzMjY4fQ.x9N9m-vGIeDmsoY8YksWzystL4N4upC_T0YL-R3DeMQ
+
+### ADMIN: View rejected contributions
+GET http://localhost:5000/api/admin/contributions/all?status=rejected
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk1ODQ2OCwiZXhwIjoxNzcxNTYzMjY4fQ.x9N9m-vGIeDmsoY8YksWzystL4N4upC_T0YL-R3DeMQ
+###
+
+### ADMIN: Approve contribution
+PATCH http://localhost:5000/api/admin/contributions/698eadbe8640c635dfc83e8e/approve
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk1ODQ2OCwiZXhwIjoxNzcxNTYzMjY4fQ.x9N9m-vGIeDmsoY8YksWzystL4N4upC_T0YL-R3DeMQ
+
+### ADMIN: Edit topic before publish
+PUT http://localhost:5000/api/admin/articles/topic/698eaf178640c635dfc83ea3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk1ODQ2OCwiZXhwIjoxNzcxNTYzMjY4fQ.x9N9m-vGIeDmsoY8YksWzystL4N4upC_T0YL-R3DeMQ
+Content-Type: application/json
+
+{
+  "title": "Sleep Hygiene in Ayurveda (Reviewed)",
+  "content": "Edited content after review...",
+  "tags": ["Lifestyle", "Sleep", "Ayurveda"]
+}
+
+### ADMIN: Publish topic after review
+PUT http://localhost:5000/api/admin/articles/topic/698eaf178640c635dfc83ea3/publish
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk1ODQ2OCwiZXhwIjoxNzcxNTYzMjY4fQ.x9N9m-vGIeDmsoY8YksWzystL4N4upC_T0YL-R3DeMQ
+
+###
+
+### ADMIN: Reject contribution
+PATCH http://localhost:5000/api/admin/contributions/698eae0d8640c635dfc83e94/reject
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDk1ODQ2OCwiZXhwIjoxNzcxNTYzMjY4fQ.x9N9m-vGIeDmsoY8YksWzystL4N4upC_T0YL-R3DeMQ
+Content-Type: application/json
+
+{
+  "feedback": "Needs more authentic sources"
+}
+
+
+
+
+
+
+
+### Get all blogs
+GET http://localhost:5000/api/blogs
+
+###
+
+### Filter by category
+GET http://localhost:5000/api/blogs?category=lifestyle
+
+###
+
+### Filter by dosha
+GET http://localhost:5000/api/blogs?dosha=Vata
+
+###
+
+### Search
+GET http://localhost:5000/api/blogs?search=Dinacharya 
+
+###
+
+### Single blog (SEO URL)
+GET http://localhost:5000/api/blogs/ayurvedic-dinacharya
+
+
+
+
+
+
+
+### ADMIN: Create blog
+POST http://localhost:5000/api/admin/blogs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2OTM1NjE0OSwiZXhwIjoxNzY5OTYwOTQ5fQ.oWumNAsKe91qQq5uMoYCOukby4wdQ5zIRoyprsoEsL0
+Content-Type: application/json
+
+{
+  "title": "What is Ayurveda?",
+  "content": "Ayurveda is the ancient science of life...",
+  "category": "lifestyle",
+  "doshaTag": "General"
+}
+
+###
+
+### ADMIN: Update blog
+PATCH http://localhost:5000/api/admin/blogs/69763dd3eb88512d9c8e49db
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2OTM1NjE0OSwiZXhwIjoxNzY5OTYwOTQ5fQ.oWumNAsKe91qQq5uMoYCOukby4wdQ5zIRoyprsoEsL0
+Content-Type: application/json
+
+{
+  "title": "What is Ayurveda? (Updated)"
+}
+
+###
+
+### ADMIN: Delete blog
+DELETE http://localhost:5000/api/admin/blogs/69763dd3eb88512d9c8e49db
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzRmYTMzNzYyODRjMmY4NWQ1ZTk1ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2OTI3NTYwMywiZXhwIjoxNzY5ODgwNDAzfQ.13MC_CYHSqvmnYv1h60o33CYETJpYbfj_VcQaofepwM
+
+
+
+
+
+
+
+### Anonymous AI request (ai-service)
+POST http://localhost:5000/api/ai/analyze
+Content-Type: application/json
+
+{
+  "symptoms": "Runny nose and sneezing",
+  "age": 28,
+  "gender": "female",
+  "additional_details": "Started today after travel"
+}
+
+###
+
+### Logged-in AI request (saved)
+POST http://localhost:5000/api/ai/analyze
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+Content-Type: application/json
+
+{
+  "symptoms": "Bloating and irregular digestion",
+  "age": 32,
+  "gender": "male",
+  "additional_details": "Ongoing for 2 weeks"
+}
+
+
+
+
+
+
+### SAVE AI REMEDY
+POST http://localhost:5000/api/save/remedy/6976416b693570de207bd3ff
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+###
+
+### UNSAVE AI REMEDY
+DELETE http://localhost:5000/api/save/remedy/6976416b693570de207bd3ff
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+###
+
+### SAVE BLOG
+POST http://localhost:5000/api/save/blog/69763c9c2d03e3ebed2e74db
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+###
+
+### UNSAVE BLOG
+DELETE http://localhost:5000/api/save/blog/69763c9c2d03e3ebed2e74db
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Get AI history
+GET http://localhost:5000/api/dashboard/ai-history
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+###
+
+### Get saved remedies
+GET http://localhost:5000/api/dashboard/saved-remedies
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+###
+
+### Get saved blogs
+GET http://localhost:5000/api/dashboard/saved-blogs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+###
+
+### Get health summary
+GET http://localhost:5000/api/dashboard/health-summary
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+
+### Test AI Endpoint
+GET http://localhost:5000/api/ai-test
+Content-Type: application/json

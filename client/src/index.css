@@ -1,0 +1,266 @@
+@import "tailwindcss";
+
+/* Defining Color Variables 
+  Usage in Tailwind: bg-[var(--bg-primary)] text-[var(--text-main)]
+*/
+@layer base {
+  :root {
+    /* --- LIGHT THEME (Nature Day) --- */
+    color-scheme: light;
+    
+    /* Backgrounds */
+    --bg-primary: #ffffff;          /* Pure White */
+    --bg-secondary: #f0fdf4;        /* Emerald-50 (Very light green tint) */
+    --bg-card: #ffffff;             /* Card Background */
+    
+    /* Text */
+    --text-main: #111827;           /* Gray-900 (Deep Charcoal) */
+    --text-muted: #4b5563;          /* Gray-600 (Softer reading text) */
+    --text-brand: #059669;          /* Emerald-600 (Strong Brand Green) */
+
+    /* Borders & Dividers */
+    --border-color: #e5e7eb;        /* Gray-200 */
+    
+    /* UI Elements */
+    --btn-primary: #059669;         /* Emerald-600 */
+    --btn-text: #ffffff;            /* White */
+  }
+
+  html {
+    overflow-y: scroll;
+  }
+
+  .dark {
+    /* --- DARK THEME (Night Forest) --- */
+    color-scheme: dark;
+    
+    /* Backgrounds: Using Slate-950 for a deep, rich night feel */
+    --bg-primary: #020617;          /* Slate-950 (Deepest Jungle Night) */
+    --bg-secondary: #0f172a;        /* Slate-900 (Slightly lighter sections) */
+    --bg-card: #1e293b;             /* Slate-800 (Card surface) */
+    
+    /* Text: Using Slate-200/400 for reduced eye strain */
+    --text-main: #f1f5f9;           /* Slate-100 (Brightest text) */
+    --text-muted: #94a3b8;          /* Slate-400 (Muted text) */
+    --text-brand: #34d399;          /* Emerald-400 (Lighter Green to pop on dark) */
+
+    /* Borders */
+    --border-color: #1e293b;        /* Slate-800 */
+    
+    /* UI Elements */
+    --btn-primary: #059669;         /* Emerald-600 (Kept same or slightly darker) */
+    --btn-text: #ffffff;
+  }
+}
+
+/* Optional: Smooth transition when switching themes */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@layer components {
+  /* Public article typography */
+  .article-prose {
+    color: var(--text-main);
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  .article-prose > * + * {
+    margin-top: 0.9rem;
+  }
+
+  .article-prose h1,
+  .article-prose h2,
+  .article-prose h3,
+  .article-prose h4 {
+    line-height: 1.25;
+    font-weight: 700;
+    margin-top: 1.4rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .article-prose h2 {
+    font-size: 1.35rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .article-prose h3 {
+    font-size: 1.15rem;
+  }
+
+  .article-prose p {
+    margin: 0.75rem 0;
+  }
+
+  .article-prose a {
+    color: var(--text-brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .article-prose ul,
+  .article-prose ol {
+    padding-left: 1.4rem;
+    list-style-position: outside;
+  }
+
+  .article-prose ul {
+    list-style-type: disc;
+  }
+
+  .article-prose ol {
+    list-style-type: decimal;
+  }
+
+  .article-prose li {
+    margin: 0.25rem 0;
+  }
+
+  .article-prose blockquote {
+    border-left: 3px solid var(--border-color);
+    padding-left: 1rem;
+    color: var(--text-muted);
+    margin: 1rem 0;
+  }
+
+  .article-prose hr {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 1.25rem 0;
+  }
+
+  .article-prose pre {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.9rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .article-prose code {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.4rem;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.9em;
+  }
+
+  .article-prose pre code {
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+
+  .article-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .article-prose th,
+  .article-prose td {
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.75rem;
+    vertical-align: top;
+  }
+
+  .article-prose th {
+    background: var(--bg-secondary);
+    font-weight: 700;
+    text-align: left;
+  }
+
+  /* TipTap editor surface */
+  .tiptap-editor {
+    outline: none;
+    min-height: 240px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+
+  .tiptap-editor > * + * {
+    margin-top: 0.85rem;
+  }
+
+  .tiptap-editor h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .tiptap-editor h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .tiptap-editor a {
+    color: var(--text-brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .tiptap-editor ul,
+  .tiptap-editor ol {
+    padding-left: 1.4rem;
+    list-style-position: outside;
+  }
+
+  .tiptap-editor ul {
+    list-style-type: disc;
+  }
+
+  .tiptap-editor ol {
+    list-style-type: decimal;
+  }
+
+  .tiptap-editor blockquote {
+    border-left: 3px solid var(--border-color);
+    padding-left: 1rem;
+    color: var(--text-muted);
+  }
+
+  .tiptap-editor table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .tiptap-editor th,
+  .tiptap-editor td {
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.75rem;
+    vertical-align: top;
+  }
+
+  .tiptap-editor th {
+    background: var(--bg-secondary);
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .tiptap-editor p.is-editor-empty:first-child::before {
+    color: var(--text-muted);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+}
