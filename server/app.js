@@ -28,6 +28,13 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
+// If deployed behind a reverse proxy (Render/NGINX/etc), set TRUST_PROXY=1
+// so req.ip reflects the real client IP for rate limiting.
+if (process.env.TRUST_PROXY) {
+  const trustValue = Number(process.env.TRUST_PROXY);
+  app.set("trust proxy", Number.isFinite(trustValue) ? trustValue : true);
+}
+
 const require = createRequire(import.meta.url);
 const { clean: xssClean } = require("xss-clean/lib/xss");
 

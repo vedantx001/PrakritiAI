@@ -1,11 +1,32 @@
 import React, { useState } from 'react';
-import { Search, ArrowRight, Sparkles, Activity, Moon, Sun, Droplets, Wind } from 'lucide-react';
+import {
+  Search,
+  ArrowRight,
+  Sparkles,
+  Activity,
+  Moon,
+  Sun,
+  Droplets,
+  Wind,
+  ChevronDown,
+  Thermometer,
+  Clock,
+  AlertCircle,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { analyzeSymptoms } from '../../services/aiService';
+import { mapAiReportToAyurvedicResultsData } from '../../utils/ayurvedicResultsMapper';
+import { DURATION_OPTIONS } from '../../pages/dashboard/user/data/symptomsAnalyzerData';
 
 const Symptoms = () => {
   const navigate = useNavigate();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState('');
+  const [invalidExamples, setInvalidExamples] = useState([]);
   const [formData, setFormData] = useState({
     symptoms: '',
+    duration: '1-3 days',
+    severity: 5,
     age: '',
     gender: '',
     additional_details: '',
@@ -16,9 +37,66 @@ const Symptoms = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAnalyze = (e) => {
+  const handleAnalyze = async (e) => {
     e.preventDefault();
-    navigate('/ayurvedic-results');
+
+    setError('');
+    setInvalidExamples([]);
+
+    if (!formData.symptoms) {
+      setError('Please enter your symptoms.');
+      return;
+    }
+
+    const age = Number(formData.age);
+    if (!Number.isFinite(age) || age <= 0) {
+      setError('Please enter a valid age.');
+      return;
+    }
+
+    const gender = String(formData.gender || '').trim().toLowerCase();
+    if (!gender) {
+      setError('Please select your gender.');
+      return;
+    }
+
+    setIsAnalyzing(true);
+
+    try {
+      const payload = await analyzeSymptoms({
+        symptoms: formData.symptoms,
+        age,
+        gender,
+        duration: formData.duration,
+        severity: Number(formData.severity),
+        additional_details: formData.additional_details,
+      });
+
+      const mapped = mapAiReportToAyurvedicResultsData(payload?.result);
+
+      try {
+        sessionStorage.setItem('demoAyurvedicResults', JSON.stringify(mapped));
+      } catch {
+        // ignore storage errors
+      }
+
+      navigate('/ayurvedic-results', {
+        state: {
+          resultsData: mapped,
+          source: 'demo',
+        },
+      });
+    } catch (err) {
+      if (err?.code === 'INVALID_SYMPTOMS') {
+        setInvalidExamples(Array.isArray(err.examples) ? err.examples : []);
+        setError(err?.message || 'Please describe your symptoms more clearly.');
+        return;
+      }
+
+      setError(err?.message || 'Failed to analyze symptoms');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const commonConcerns = [
@@ -63,6 +141,25 @@ const Symptoms = () => {
               onSubmit={handleAnalyze}
               className="bg-[var(--bg-card)] rounded-2xl border-2 border-[var(--border-color)] shadow-sm p-5 md:p-6 transition-all duration-300 hover:border-emerald-300"
             >
+              {error ? (
+                <div className="mb-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 text-sm text-red-600 dark:text-red-400 flex gap-2">
+                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="font-semibold">{error}</div>
+                    {invalidExamples.length ? (
+                      <div className="mt-2 text-[var(--text-muted)]">
+                        Try examples:
+                        <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                          {invalidExamples.slice(0, 6).map((ex, idx) => (
+                            <li key={idx}>{ex}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label htmlFor="symptoms" className="block text-sm font-semibold text-[var(--text-main)] mb-2">
@@ -84,6 +181,51 @@ const Symptoms = () => {
                       maxLength={1000}
                       className="w-full py-3 px-3 text-[var(--text-main)] bg-transparent border-none focus:ring-0 focus:outline-none placeholder:text-[var(--text-muted)]"
                     />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--text-main)] mb-2 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-[var(--text-muted)]" /> Duration
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="duration"
+                      value={formData.duration}
+                      onChange={handleInputChange}
+                      className="w-full appearance-none rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] py-3 px-4 text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-emerald-100/60 focus:border-emerald-500 transition-all"
+                    >
+                      {DURATION_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-3.5 w-5 h-5 text-[var(--text-muted)] pointer-events-none" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
+                      <Thermometer className="w-4 h-4 text-[var(--text-muted)]" /> Severity
+                    </label>
+                    <span className="text-sm font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-900/25 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800">
+                      {formData.severity}/10
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    name="severity"
+                    value={formData.severity}
+                    onChange={handleInputChange}
+                    className="w-full h-2 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  />
+                  <div className="flex justify-between text-xs text-[var(--text-muted)] mt-2 font-medium">
+                    <span>Mild</span>
+                    <span>Severe</span>
                   </div>
                 </div>
 
@@ -143,9 +285,10 @@ const Symptoms = () => {
               <div className="mt-5 flex justify-end">
                 <button
                   type="submit"
+                  disabled={isAnalyzing}
                   className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 active:scale-95 transition-all duration-200 shadow-md shadow-emerald-200 cursor-pointer"
                 >
-                  <span>Analyze</span>
+                  <span>{isAnalyzing ? 'Analyzing...' : 'Analyze'}</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>

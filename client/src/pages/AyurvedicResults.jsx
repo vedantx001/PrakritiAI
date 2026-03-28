@@ -4,6 +4,7 @@ import {
   Brain, Info, Droplet, Sparkles, Activity, ShieldCheck 
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useLocation } from 'react-router-dom';
 
 /**
  * DATA CONSTANT
@@ -327,7 +328,22 @@ export const AyurvedicResultsContent = ({ data = ANALYSIS_DATA }) => {
 
 const AyurvedicResultsPage = () => {
   const { theme, toggleTheme } = useTheme();
-  const data = ANALYSIS_DATA; // In a real app, this would come from props or context
+  const location = useLocation();
+
+  let data = location?.state?.resultsData;
+
+  if (!data) {
+    try {
+      const stored = sessionStorage.getItem('demoAyurvedicResults');
+      if (stored) {
+        data = JSON.parse(stored);
+      }
+    } catch {
+      data = null;
+    }
+  }
+
+  data = data || ANALYSIS_DATA;
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] transition-colors duration-300 font-sans pb-20">
