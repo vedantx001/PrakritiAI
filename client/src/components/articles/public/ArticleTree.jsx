@@ -2,12 +2,13 @@
 
 import ArticleSidebar from '../ArticleSidebar';
 
-const ArticleTree = ({ articleTree, selected, onSelect, canManage, onManageAction }) => (
+const ArticleTree = ({ articleTree, selected, onSelect, canManage, canShare, onManageAction }) => (
 	<ArticleSidebar
 		articleTree={articleTree}
 		selected={selected}
 		onSelect={onSelect}
 		canManage={canManage}
+		canShare={canShare}
 		onManageAction={onManageAction}
 	/>
 );

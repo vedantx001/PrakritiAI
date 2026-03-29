@@ -77,3 +77,57 @@ export const getTopicEngagement = asyncHandler(async (req, res) => {
     saved: Boolean(saved),
   });
 });
+
+// GET canonical share payload for a published topic (used by client share UI)
+export const getTopicSharePayload = asyncHandler(async (req, res) => {
+  const { topicSlug } = req.params;
+
+  const topic = await ArticleTopic.findOne({ slug: topicSlug, status: "published" })
+    .select("title slug chapter")
+    .populate({
+      path: "chapter",
+      select: "slug series",
+      populate: {
+        path: "series",
+        select: "slug",
+      },
+    });
+
+  if (!topic) {
+    return res.status(404).json({ message: "Article not found" });
+  }
+
+  const seriesSlug = topic?.chapter?.series?.slug;
+  const chapterSlug = topic?.chapter?.slug;
+
+  if (!seriesSlug || !chapterSlug) {
+    return res.status(404).json({ message: "Article not found" });
+  }
+
+  const canonicalPath = `/articles/${seriesSlug}/${chapterSlug}/${topic.slug}`;
+
+  const envBase = (process.env.WEB_APP_URL || process.env.CLIENT_URL || "").trim();
+  const headerOrigin = (req.get("origin") || "").trim();
+  const baseUrl = (envBase || headerOrigin || "").replace(/\/$/, "");
+
+  res.json({
+    entityType: "article_topic",
+    topic: {
+      id: topic._id,
+      slug: topic.slug,
+      title: topic.title,
+    },
+    canonicalPath,
+    absoluteUrl: baseUrl ? `${baseUrl}${canonicalPath}` : null,
+    channels: [
+      {
+        id: "copy",
+        label: "Copy link",
+      },
+      {
+        id: "whatsapp",
+        label: "WhatsApp",
+      },
+    ],
+  });
+});

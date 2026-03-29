@@ -3,15 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Moon, Sun } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import ArticleContent from '../../components/articles/ArticleContent';
 import ArticleLayout from '../../components/articles/ArticleLayout';
 import ArticleFormShell from '../../components/articles/admin/ArticleFormShell';
 import ThemeStyles from '../../components/dashboard/admin/ThemeStyles';
 import ArticleTree from '../../components/articles/public/ArticleTree';
+import ArticleContentSwitcher from '../../components/articles/public/ArticleContentSwitcher';
 import TopicPagination from '../../components/articles/public/TopicPagination';
 import ArticleCommentsModal from '../../components/articles/public/ArticleCommentsModal';
 import ArticleLoadingState from '../../components/articles/shared/ArticleLoadingState';
 import ArticleEmptyState from '../../components/articles/shared/ArticleEmptyState';
+import ShareModal from '../../components/articles/shared/ShareModal';
 import AuthModal from '../../components/auth/AuthModal';
 import { useAuth } from '../../context/useAuth';
 import { useTheme } from '../../context/ThemeContext';
@@ -33,6 +34,8 @@ import {
   updateChapterAdmin,
   updateSeriesAdmin,
   updateTopicAdmin,
+  fetchTopicSharePayload,
+  peekTopicSharePayloadCache,
 } from '../../services/articleService';
 import { getDefaultSelection } from '../../utils/articles/mapArticleTree';
 
@@ -134,6 +137,17 @@ export default function ArticlesSection() {
   const [authMode, setAuthMode] = useState('login');
   const [pendingEngagementAction, setPendingEngagementAction] = useState(null);
 
+  const [shareState, setShareState] = useState({
+    isOpen: false,
+    title: '',
+    url: '',
+    text: '',
+    channels: [
+      { id: 'copy', label: 'Copy link' },
+      { id: 'whatsapp', label: 'WhatsApp' },
+    ],
+  });
+
   const [engagement, setEngagement] = useState({
     topicId: '',
     likesCount: 0,
@@ -148,6 +162,76 @@ export default function ArticlesSection() {
   useEffect(() => {
     engagementRef.current = engagement;
   }, [engagement]);
+
+  const resolveAbsoluteUrl = (canonicalPath, absoluteUrlFromServer) => {
+    if (absoluteUrlFromServer) return absoluteUrlFromServer;
+    if (!canonicalPath) return '';
+    if (typeof window === 'undefined') return canonicalPath;
+    return `${window.location.origin}${canonicalPath}`;
+  };
+
+  const openShareForTopicSlug = async ({ topicSlug: nextTopicSlug, fallbackTitle = '', fallbackPath = '' }) => {
+    if (!nextTopicSlug && !fallbackPath) return;
+
+    const fallbackUrl = fallbackPath ? resolveAbsoluteUrl(fallbackPath, null) : '';
+    const cached = nextTopicSlug ? peekTopicSharePayloadCache(nextTopicSlug) : null;
+
+    setShareState({
+      isOpen: true,
+      title: cached?.topic?.title || fallbackTitle || '',
+      url: resolveAbsoluteUrl(cached?.canonicalPath || fallbackPath, cached?.absoluteUrl) || fallbackUrl,
+      text: cached?.topic?.title || fallbackTitle || '',
+      channels: Array.isArray(cached?.channels) && cached.channels.length > 0
+        ? cached.channels
+        : [
+            { id: 'copy', label: 'Copy link' },
+            { id: 'whatsapp', label: 'WhatsApp' },
+          ],
+    });
+
+    if (!nextTopicSlug) return;
+
+    try {
+      const payload = await fetchTopicSharePayload({ topicSlug: nextTopicSlug });
+      const absoluteUrl = resolveAbsoluteUrl(payload?.canonicalPath || fallbackPath, payload?.absoluteUrl);
+      setShareState((previous) => {
+        if (!previous.isOpen) return previous;
+        return {
+          ...previous,
+          title: payload?.topic?.title || previous.title,
+          text: payload?.topic?.title || previous.text,
+          url: absoluteUrl || previous.url,
+          channels: Array.isArray(payload?.channels) && payload.channels.length > 0 ? payload.channels : previous.channels,
+        };
+      });
+    } catch {
+      // If share payload fails, keep fallback URL.
+    }
+  };
+
+  const openShareForTopicEntity = async (topicEntity) => {
+    if (!topicEntity?.id && !topicEntity?.slug) return;
+
+    let fallbackPath = '';
+    if (topicEntity?.id) {
+      for (const series of articleTree) {
+        for (const chapter of series.chapters || []) {
+          const matching = (chapter.topics || []).find((item) => item.id === topicEntity.id);
+          if (matching) {
+            fallbackPath = buildArticlePath({ series, chapter, topic: matching }) || '';
+            break;
+          }
+        }
+        if (fallbackPath) break;
+      }
+    }
+
+    await openShareForTopicSlug({
+      topicSlug: topicEntity?.slug || '',
+      fallbackTitle: topicEntity?.title || '',
+      fallbackPath,
+    });
+  };
 
   // Theme is handled globally by ThemeProvider.
 
@@ -622,29 +706,34 @@ export default function ArticlesSection() {
   const getSeriesById = (seriesId) => articleTree.find((item) => item.id === seriesId);
 
   const handleManageAction = async (action, payload) => {
-    if (!isAdmin) {
-      return;
-    }
-
     if (action === 'share') {
       const series = getSeriesById(payload.seriesId);
       const chapter = series?.chapters.find((item) => item.id === payload.chapterId);
       const topicEntity = chapter?.topics.find((item) => item.id === payload.topicId);
-      const label =
-      payload.entityType === 'series'
-        ? series?.title
-        : payload.entityType === 'chapter'
-        ? chapter?.title
-        : topicEntity?.title;
 
-      if (!label) {
-        return;
-      }
+      const shareTarget =
+        payload.entityType === 'topic'
+          ? topicEntity
+          : payload.entityType === 'chapter'
+          ? chapter?.topics?.[0]
+          : series?.chapters?.[0]?.topics?.[0];
 
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(label);
-      }
+      if (!shareTarget) return;
 
+      await openShareForTopicSlug({
+        topicSlug: shareTarget.slug,
+        fallbackTitle: shareTarget.title,
+        fallbackPath: buildArticlePath({
+          series: series || urlResolvedSelection?.series,
+          chapter: payload.entityType === 'series' ? series?.chapters?.[0] : chapter,
+          topic: shareTarget,
+        }),
+      });
+
+      return;
+    }
+
+    if (!isAdmin) {
       return;
     }
 
@@ -853,17 +942,16 @@ export default function ArticlesSection() {
                 selected={selected}
                 onSelect={handleSelect}
                 canManage={isAdmin}
+                canShare={!isAdmin}
                 onManageAction={handleManageAction}
               />
             }
           >
             <div className="p-6 md:p-8 h-full min-h-0">
-              <ArticleContent
-                title={topic?.title || 'No topic selected'}
-                content={topic?.content}
-                tags={topic?.tags || []}
-                publishedAt={topic?.publishedAt}
-                contributorName={topic?.contributorName}
+              <ArticleContentSwitcher
+                topicSlug={topic?.slug || ''}
+                fallbackTopic={topic}
+                onShareRequested={openShareForTopicEntity}
                 likesCount={engagement.topicId === topic?.id ? engagement.likesCount : 0}
                 savesCount={engagement.topicId === topic?.id ? engagement.savesCount : 0}
                 isLiked={engagement.topicId === topic?.id ? engagement.liked : false}
@@ -929,6 +1017,15 @@ export default function ArticlesSection() {
         onAuthenticated={() => {
           setIsAuthOpen(false);
         }}
+      />
+
+      <ShareModal
+        isOpen={shareState.isOpen}
+        onClose={() => setShareState((previous) => ({ ...previous, isOpen: false }))}
+        title={shareState.title}
+        shareUrl={shareState.url}
+        shareText={shareState.text}
+        channels={shareState.channels}
       />
     </div>
   );

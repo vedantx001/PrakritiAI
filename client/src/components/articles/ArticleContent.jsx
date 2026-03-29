@@ -13,6 +13,7 @@ const ArticleContent = ({
 	contributorName,
 	tags = [],
 	onOpenComments,
+	onShare,
 	likesCount,
 	savesCount,
 	isLiked,
@@ -82,6 +83,8 @@ const ArticleContent = ({
 				<div className="flex items-center gap-2">
 					<button
 						type="button"
+						onClick={onShare}
+						disabled={!onShare}
 						className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-color)] px-2.5 py-1.5 text-xs text-[var(--text-main)] hover:bg-[var(--bg-secondary)]"
 					>
 						<Share2 size={14} />

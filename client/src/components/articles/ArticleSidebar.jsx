@@ -1,6 +1,6 @@
 // Purpose: Display hierarchical article navigation (series, chapter, topic links).
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight, Ellipsis, Pencil, Share2, Trash2 } from 'lucide-react';
 
 const EXPANDED_SERIES_STORAGE_KEY = 'prakritiai.articleIndex.expandedSeries';
@@ -44,12 +44,7 @@ const buildChapterExpansionMap = (articleTree, stored) => {
 	return next;
 };
 
-const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, onManageAction }) => {
-	const initialSeriesExpanded = useMemo(
-		() => Object.fromEntries(articleTree.map((series) => [series.id, true])),
-		[articleTree]
-	);
-
+const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, canShare = false, onManageAction }) => {
 	const [expandedSeries, setExpandedSeries] = useState(() => {
 		const stored = readJsonObject(EXPANDED_SERIES_STORAGE_KEY);
 		return buildSeriesExpansionMap(articleTree, stored);
@@ -59,12 +54,6 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, on
 		return buildChapterExpansionMap(articleTree, stored);
 	});
 	const [menuTarget, setMenuTarget] = useState(null);
-
-	useEffect(() => {
-		// Keep user's previous expansion state, but merge new series/chapters and prune removed ids.
-		setExpandedSeries((previous) => buildSeriesExpansionMap(articleTree, previous));
-		setExpandedChapters((previous) => buildChapterExpansionMap(articleTree, previous));
-	}, [initialSeriesExpanded]);
 
 	useEffect(() => {
 		writeJsonObject(EXPANDED_SERIES_STORAGE_KEY, expandedSeries);
@@ -105,7 +94,8 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, on
 	};
 
 	const renderMenu = (target) => {
-		if (!canManage || !menuTarget || menuTarget.type !== target.type || menuTarget.id !== target.id) {
+		const hasMenuAccess = canManage || canShare;
+		if (!hasMenuAccess || !menuTarget || menuTarget.type !== target.type || menuTarget.id !== target.id) {
 			return null;
 		}
 
@@ -125,28 +115,32 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, on
 					<Share2 size={14} />
 					Share
 				</button>
-				<button
-					type="button"
-					onClick={() => {
-						onManageAction?.('rename', target.payload);
-						setMenuTarget(null);
-					}}
-					className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)]"
-				>
-					<Pencil size={14} />
-					Rename
-				</button>
-				<button
-					type="button"
-					onClick={() => {
-						onManageAction?.('delete', target.payload);
-						setMenuTarget(null);
-					}}
-					className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-[var(--bg-secondary)]"
-				>
-					<Trash2 size={14} />
-					Delete
-				</button>
+				{canManage && (
+					<button
+						type="button"
+						onClick={() => {
+							onManageAction?.('rename', target.payload);
+							setMenuTarget(null);
+						}}
+						className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)]"
+					>
+						<Pencil size={14} />
+						Rename
+					</button>
+				)}
+				{canManage && (
+					<button
+						type="button"
+						onClick={() => {
+							onManageAction?.('delete', target.payload);
+							setMenuTarget(null);
+						}}
+						className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-[var(--bg-secondary)]"
+					>
+						<Trash2 size={14} />
+						Delete
+					</button>
+				)}
 			</div>
 		);
 	};
@@ -184,7 +178,7 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, on
 									{series.title}
 								</button>
 
-								{canManage && (
+								{(canManage || canShare) && (
 									<button
 										type="button"
 										onClick={(event) =>
@@ -237,7 +231,7 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, on
 														{chapter.title}
 													</button>
 
-													{canManage && (
+													{(canManage || canShare) && (
 														<button
 															type="button"
 															onClick={(event) =>
@@ -279,7 +273,7 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, on
 																		{topic.title}
 																	</button>
 
-																	{canManage && (
+																	{(canManage || canShare) && (
 																		<button
 																			type="button"
 																			onClick={(event) =>

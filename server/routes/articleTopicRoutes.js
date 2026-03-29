@@ -3,6 +3,7 @@ import {
   getTopicsByChapterSlug,
   getTopicBySlug,
   getTopicEngagement,
+  getTopicSharePayload,
 } from "../controllers/articleTopicController.js";
 import {
   addArticleComment,
@@ -41,6 +42,7 @@ router.delete(
   protect,
   deleteArticleComment
 );
+router.get("/topic/:topicSlug/share", getTopicSharePayload);
 router.get("/topic/:topicSlug", getTopicBySlug);
 
 export default router;

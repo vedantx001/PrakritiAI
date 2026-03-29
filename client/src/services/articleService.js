@@ -2,9 +2,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const buildUrl = (path) => `${API_BASE_URL}${path}`;
 
-const request = async (path, { method = 'GET', token, body } = {}) => {
+const request = async (path, { method = 'GET', token, body, signal } = {}) => {
 	const response = await fetch(buildUrl(path), {
 		method,
+		signal,
 		headers: {
 			'Content-Type': 'application/json',
 			...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -57,6 +58,50 @@ const mapSeries = (series, chapters = []) => ({
 	slug: series.slug,
 	chapters: chapters.map((chapter) => chapter),
 });
+
+const mapTopicDetails = (topic) =>
+	mapTopic(
+		{
+			...topic,
+			contributor: topic?.contributor,
+		},
+		topic?.chapter?._id || topic?.chapter || ''
+	);
+
+// --- Published Topic Cache (in-memory) ---
+
+const PUBLISHED_TOPIC_CACHE = new Map();
+const PUBLISHED_TOPIC_CACHE_MAX = 75;
+
+const rememberPublishedTopic = (topicSlug, topic) => {
+	if (!topicSlug || !topic) return;
+	if (PUBLISHED_TOPIC_CACHE.has(topicSlug)) {
+		PUBLISHED_TOPIC_CACHE.delete(topicSlug);
+	}
+	PUBLISHED_TOPIC_CACHE.set(topicSlug, topic);
+	if (PUBLISHED_TOPIC_CACHE.size > PUBLISHED_TOPIC_CACHE_MAX) {
+		const firstKey = PUBLISHED_TOPIC_CACHE.keys().next().value;
+		PUBLISHED_TOPIC_CACHE.delete(firstKey);
+	}
+};
+
+export const peekPublishedTopicCache = (topicSlug) => (topicSlug ? PUBLISHED_TOPIC_CACHE.get(topicSlug) || null : null);
+
+export const primePublishedTopicCache = (topic) => {
+	if (!topic?.slug) return;
+	rememberPublishedTopic(topic.slug, topic);
+};
+
+export const fetchPublishedTopicBySlug = async ({ topicSlug, signal } = {}) => {
+	if (!topicSlug) {
+		throw new Error('Topic slug is required');
+	}
+
+	const payload = await request(`/api/articles/topic/${topicSlug}`, { method: 'GET', signal });
+	const mapped = mapTopicDetails(payload);
+	rememberPublishedTopic(topicSlug, mapped);
+	return mapped;
+};
 
 export const getPublishedArticleTree = async () => {
 	const seriesList = await request('/api/articles/series');
@@ -210,3 +255,33 @@ export const unsaveArticleTopic = async ({ topicId, token }) =>
 		method: 'DELETE',
 		token,
 	});
+
+// --- Share ---
+
+const TOPIC_SHARE_CACHE = new Map();
+const TOPIC_SHARE_CACHE_MAX = 100;
+
+const rememberTopicSharePayload = (topicSlug, payload) => {
+	if (!topicSlug || !payload) return;
+	if (TOPIC_SHARE_CACHE.has(topicSlug)) {
+		TOPIC_SHARE_CACHE.delete(topicSlug);
+	}
+	TOPIC_SHARE_CACHE.set(topicSlug, payload);
+	if (TOPIC_SHARE_CACHE.size > TOPIC_SHARE_CACHE_MAX) {
+		const firstKey = TOPIC_SHARE_CACHE.keys().next().value;
+		TOPIC_SHARE_CACHE.delete(firstKey);
+	}
+};
+
+export const peekTopicSharePayloadCache = (topicSlug) => (topicSlug ? TOPIC_SHARE_CACHE.get(topicSlug) || null : null);
+
+export const fetchTopicSharePayload = async ({ topicSlug, signal } = {}) => {
+	if (!topicSlug) {
+		throw new Error('Topic slug is required');
+	}
+	const cached = peekTopicSharePayloadCache(topicSlug);
+	if (cached) return cached;
+	const payload = await request(`/api/articles/topic/${topicSlug}/share`, { method: 'GET', signal });
+	rememberTopicSharePayload(topicSlug, payload);
+	return payload;
+};
