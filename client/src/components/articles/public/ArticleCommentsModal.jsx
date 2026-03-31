@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUp, ArrowDown, List, ListOrdered, MessageCircle, Send, Type, User, X } from 'lucide-react';
+import { ArrowUp, ArrowDown, List, ListOrdered, MessageCircle, PencilLine, Send, Trash2, Type, User, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ConfirmDialog from '../../shared/ConfirmDialog';
 import {
 	addTopicComment,
 	deleteTopicComment,
@@ -85,6 +86,7 @@ export default function ArticleCommentsModal({
 	const [loading, setLoading] = useState(false);
 	const [editingId, setEditingId] = useState(null);
 	const [editDraft, setEditDraft] = useState('');
+	const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, comment: null });
 
 	const listRef = useRef(null);
 	const textareaRef = useRef(null);
@@ -274,16 +276,27 @@ export default function ArticleCommentsModal({
 			return;
 		}
 		if (!canManageComment(comment)) return;
+		setDeleteConfirm({ isOpen: true, comment });
+	};
 
-		const ok = window.confirm('Delete this comment? This will also delete its replies.');
-		if (!ok) return;
+	const confirmDeleteComment = () => {
+		const comment = deleteConfirm.comment;
+		if (!threadKey || !comment?.id) return;
+		if (!isAuthed) {
+			onRequireAuth?.();
+			return;
+		}
+		if (!canManageComment(comment)) return;
 
 		setError('');
 		setLoading(true);
 		deleteTopicComment({ topicId: threadKey, commentId: comment.id, token })
 			.then(() => removeCommentThread(comment.id))
 			.catch((e2) => setError(e2?.message || 'Failed to delete comment'))
-			.finally(() => setLoading(false));
+			.finally(() => {
+				setLoading(false);
+				setDeleteConfirm({ isOpen: false, comment: null });
+			});
 	};
 
 	const handleVote = (commentId, direction) => {
@@ -301,9 +314,10 @@ export default function ArticleCommentsModal({
 	};
 
 	return (
-		<AnimatePresence>
-			{isOpen && (
-				<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6">
+		<>
+			<AnimatePresence>
+				{isOpen && (
+					<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6">
 					<MotionDiv
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -509,7 +523,7 @@ export default function ArticleCommentsModal({
 																					type="button"
 																					onClick={() => saveEdit(comment)}
 																					disabled={loading || !editDraft.trim()}
-																					className="text-[var(--text-brand)] font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+																					className="inline-flex items-center rounded-xl border border-[var(--border-color)] px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
 																				>
 																					Save
 																				</button>
@@ -517,7 +531,7 @@ export default function ArticleCommentsModal({
 																					type="button"
 																					onClick={cancelEdit}
 																					disabled={loading}
-																					className="text-[var(--text-muted)] hover:text-[var(--text-main)]"
+																					className="inline-flex items-center rounded-xl border border-[var(--border-color)] px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
 																				>
 																					Cancel
 																				</button>
@@ -558,23 +572,31 @@ export default function ArticleCommentsModal({
 															</button>
 
 																		{canManageComment(comment) ? (
-																			<>
+																			<div className="flex items-center gap-2">
 																				<button
 																					type="button"
 																					onClick={() => (editingId === comment.id ? cancelEdit() : startEdit(comment))}
-																					className="text-[var(--text-muted)] hover:text-[var(--text-main)]"
+																					disabled={loading}
+																					className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] px-2.5 py-1.5 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+																					aria-label="Edit comment"
+																					title="Edit"
 																				>
+																					<PencilLine className="w-3.5 h-3.5" />
 																					Edit
 																				</button>
 																				<button
 																					type="button"
 																					onClick={() => handleDelete(comment)}
-																					className="text-[var(--text-muted)] hover:text-[var(--text-main)]"
+																					disabled={loading}
+																					className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] px-2.5 py-1.5 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+																					aria-label="Delete comment"
+																					title="Delete"
 																				>
+																					<Trash2 className="w-3.5 h-3.5" />
 																					Delete
 																				</button>
-																		</>
-																	) : null}
+																			</div>
+																		) : null}
 														</div>
 													</div>
 												</div>
@@ -585,8 +607,19 @@ export default function ArticleCommentsModal({
 							</div>
 						</div>
 					</MotionDiv>
-				</div>
-			)}
-		</AnimatePresence>
+					</div>
+				)}
+			</AnimatePresence>
+
+			<ConfirmDialog
+				isOpen={deleteConfirm.isOpen}
+				onClose={() => setDeleteConfirm({ isOpen: false, comment: null })}
+				onConfirm={confirmDeleteComment}
+				title="Delete comment?"
+				message="This will also delete its replies."
+				confirmLabel="Delete"
+				cancelLabel="Cancel"
+			/>
+		</>
 	);
 }

@@ -54,6 +54,24 @@ export const fetchDiscussionPosts = async ({ page = 1, limit = 10, token } = {})
 	return payload;
 };
 
+export const fetchDiscussionPostById = async ({ postId, token } = {}) => {
+	if (!postId) throw new Error('Post id is required');
+
+	const response = await fetch(buildUrl(`/api/discussions/posts/${encodeURIComponent(postId)}`), {
+		method: 'GET',
+		headers: {
+			...(token ? { Authorization: `Bearer ${token}` } : {}),
+		},
+	});
+
+	const payload = await readJsonSafely(response);
+	if (!response.ok) {
+		throw new Error(toErrorMessage(payload, 'Failed to load discussion post'));
+	}
+
+	return payload?.post || null;
+};
+
 export const createDiscussionPost = async ({ title, content, tags }, { token } = {}) => {
 	if (!token) throw new Error('Please log in to create a post');
 

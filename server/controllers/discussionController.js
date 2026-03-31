@@ -1,5 +1,6 @@
 import DiscussionPost from "../models/DiscussionPost.js";
 import DiscussionLike from "../models/DiscussionLike.js";
+import DiscussionComment from "../models/DiscussionComment.js";
 import User from "../models/User.js";
 
 const roleToDisplayRole = (role) => {
@@ -101,6 +102,34 @@ export const listDiscussionPosts = async (req, res) => {
     hasMore: skip + posts.length < total,
     posts: posts.map((p) => toClientPost(p, viewerId, viewerState)),
   });
+};
+
+export const getDiscussionPostById = async (req, res) => {
+  const { postId } = req.params;
+
+  const post = await DiscussionPost.findById(postId).populate(
+    "author",
+    "name role"
+  );
+
+  if (!post) return res.status(404).json({ message: "Post not found" });
+
+  const viewerId = req.user?._id;
+  let viewerState = {};
+
+  if (viewerId) {
+    const [liked, saved] = await Promise.all([
+      DiscussionLike.exists({ post: postId, user: viewerId }),
+      User.exists({ _id: viewerId, savedDiscussionPosts: postId }),
+    ]);
+
+    viewerState = {
+      likedPosts: new Set(liked ? [post._id.toString()] : []),
+      savedPosts: new Set(saved ? [post._id.toString()] : []),
+    };
+  }
+
+  res.json({ post: toClientPost(post, viewerId, viewerState) });
 };
 
 export const getDiscussionPostEngagement = async (req, res) => {
@@ -212,6 +241,102 @@ export const getDiscoverDiscussionTags = async (req, res) => {
     day,
     tags: tags.slice(0, limit),
   });
+};
+
+export const getTopDiscussionContributors = async (req, res) => {
+  const limit = Math.min(20, Math.max(1, Number(req.query.limit) || 3));
+
+  const [postRows, commentRows] = await Promise.all([
+    DiscussionPost.aggregate([
+      {
+        $group: {
+          _id: "$author",
+          posts: { $sum: 1 },
+          reactions: { $sum: { $ifNull: ["$reactions", 0] } },
+        },
+      },
+    ]),
+    DiscussionComment.aggregate([
+      {
+        $group: {
+          _id: "$user",
+          comments: { $sum: 1 },
+          upvotes: { $sum: { $ifNull: ["$upvotes", 0] } },
+          downvotes: { $sum: { $ifNull: ["$downvotes", 0] } },
+        },
+      },
+    ]),
+  ]);
+
+  const byUserId = new Map();
+
+  for (const row of postRows || []) {
+    const userId = row?._id?.toString?.();
+    if (!userId) continue;
+    byUserId.set(userId, {
+      userId,
+      posts: row?.posts ?? 0,
+      reactions: row?.reactions ?? 0,
+      comments: 0,
+      upvotes: 0,
+      downvotes: 0,
+    });
+  }
+
+  for (const row of commentRows || []) {
+    const userId = row?._id?.toString?.();
+    if (!userId) continue;
+    const existing = byUserId.get(userId) || {
+      userId,
+      posts: 0,
+      reactions: 0,
+      comments: 0,
+      upvotes: 0,
+      downvotes: 0,
+    };
+
+    existing.comments = row?.comments ?? 0;
+    existing.upvotes = row?.upvotes ?? 0;
+    existing.downvotes = row?.downvotes ?? 0;
+    byUserId.set(userId, existing);
+  }
+
+  const userIds = Array.from(byUserId.keys());
+  if (userIds.length === 0) {
+    return res.json({ contributors: [] });
+  }
+
+  const users = await User.find({ _id: { $in: userIds } }).select("name");
+  const nameById = new Map(
+    (users || []).map((u) => [u._id.toString(), u.name])
+  );
+
+  // Simple points model (kept server-side so UI stays unchanged):
+  // - reactions received on posts carry the most weight
+  // - publishing posts and leaving comments adds baseline points
+  // - comment upvotes add extra signal (downvotes reduce it)
+  const rows = userIds
+    .map((id) => {
+      const stats = byUserId.get(id);
+      const reactions = Number(stats?.reactions || 0);
+      const posts = Number(stats?.posts || 0);
+      const comments = Number(stats?.comments || 0);
+      const upvotes = Number(stats?.upvotes || 0);
+      const downvotes = Number(stats?.downvotes || 0);
+
+      const commentScore = Math.max(0, upvotes - downvotes);
+      const points = Math.round(reactions + posts * 5 + comments * 2 + commentScore);
+
+      return {
+        id,
+        name: nameById.get(id) || "Unknown",
+        points,
+      };
+    })
+    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
+    .slice(0, limit);
+
+  res.json({ contributors: rows });
 };
 
 export const createDiscussionPost = async (req, res) => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Bookmark,
   CheckCircle,
@@ -7,7 +7,9 @@ import {
   Heart,
   MessageCircle,
   MoreHorizontal,
+  PencilLine,
   Share2,
+  Trash2,
   User,
 } from 'lucide-react';
 
@@ -19,10 +21,12 @@ function DiscussionCard({
   onToggleLike,
   onToggleBookmark,
   onOpenComments,
+  onShare,
   likeDisabled,
   bookmarkDisabled,
 }) {
   const MotionArticle = motion.article;
+  const MotionDiv = motion.div;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -35,6 +39,15 @@ function DiscussionCard({
     };
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
 
   return (
@@ -74,36 +87,52 @@ function DiscussionCard({
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors p-1"
+            className="inline-flex items-center justify-center rounded-full p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
             aria-label="Post actions"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            disabled={!isOwner}
           >
             <MoreHorizontal className="w-5 h-5" />
           </button>
 
-          {menuOpen && isOwner && (
-            <div className="absolute right-0 mt-2 w-36 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-sm overflow-hidden z-10">
-              <button
-                type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  onEdit?.(post);
-                }}
-                className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+          <AnimatePresence>
+            {menuOpen && isOwner ? (
+              <MotionDiv
+                initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
+                className="absolute right-0 mt-2 w-40 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-sm overflow-hidden z-10"
+                role="menu"
               >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  onDelete?.(post);
-                }}
-                className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          )}
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEdit?.(post);
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+                >
+                  <PencilLine className="w-4 h-4" />
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDelete?.(post);
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </button>
+              </MotionDiv>
+            ) : null}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -159,7 +188,13 @@ function DiscussionCard({
             <span className="text-sm font-medium">{post.comments}</span>
           </button>
 
-          <button className="flex items-center space-x-1.5 text-[var(--text-muted)] hover:text-emerald-500 transition-colors group hidden sm:flex">
+          <button
+            type="button"
+            onClick={() => onShare?.(post)}
+            disabled={!onShare}
+            className="flex items-center space-x-1.5 text-[var(--text-muted)] hover:text-emerald-500 transition-colors group hidden sm:flex disabled:opacity-60 disabled:cursor-not-allowed"
+            aria-label="Share"
+          >
             <div className="p-1.5 rounded-full group-hover:bg-[var(--bg-secondary)] transition-colors">
               <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>

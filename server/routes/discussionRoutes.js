@@ -3,7 +3,9 @@ import {
   createDiscussionPost,
   deleteDiscussionPost,
   getDiscoverDiscussionTags,
+  getDiscussionPostById,
   getDiscussionPostEngagement,
+  getTopDiscussionContributors,
   getTrendingDiscussionTags,
   listDiscussionPosts,
   updateDiscussionPost,
@@ -24,7 +26,10 @@ const router = express.Router();
 router.get("/tags/trending", getTrendingDiscussionTags);
 router.get("/tags/discover", getDiscoverDiscussionTags);
 
+router.get("/contributors/top", getTopDiscussionContributors);
+
 router.get("/posts", optionalAuth, listDiscussionPosts);
+router.get("/posts/:postId", optionalAuth, getDiscussionPostById);
 router.post("/posts", protect, createDiscussionPost);
 router.get("/posts/:postId/engagement", optionalAuth, getDiscussionPostEngagement);
 router.post("/posts/:postId/like", protect, likeDiscussionPost);

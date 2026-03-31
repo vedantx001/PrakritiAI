@@ -13,6 +13,7 @@ import ArticleCommentsModal from '../../components/articles/public/ArticleCommen
 import ArticleLoadingState from '../../components/articles/shared/ArticleLoadingState';
 import ArticleEmptyState from '../../components/articles/shared/ArticleEmptyState';
 import ShareModal from '../../components/articles/shared/ShareModal';
+import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import AuthModal from '../../components/auth/AuthModal';
 import { useAuth } from '../../context/useAuth';
 import { useTheme } from '../../context/ThemeContext';
@@ -136,6 +137,7 @@ export default function ArticlesSection() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [pendingEngagementAction, setPendingEngagementAction] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, payload: null, title: '', message: '' });
 
   const [shareState, setShareState] = useState({
     isOpen: false,
@@ -168,6 +170,71 @@ export default function ArticlesSection() {
     if (!canonicalPath) return '';
     if (typeof window === 'undefined') return canonicalPath;
     return `${window.location.origin}${canonicalPath}`;
+  };
+
+  const requestDeleteConfirmation = (payload) => {
+    if (!payload?.entityType) return;
+    if (!isAdmin) return;
+
+    if (payload.entityType === 'series') {
+      setDeleteConfirm({
+        isOpen: true,
+        payload,
+        title: 'Delete series?',
+        message: 'This will also delete all its chapters and topics.',
+      });
+      return;
+    }
+
+    if (payload.entityType === 'chapter') {
+      setDeleteConfirm({
+        isOpen: true,
+        payload,
+        title: 'Delete chapter?',
+        message: 'This will also delete all its topics.',
+      });
+      return;
+    }
+
+    setDeleteConfirm({
+      isOpen: true,
+      payload,
+      title: 'Delete topic?',
+      message: '',
+    });
+  };
+
+  const confirmDelete = async () => {
+    const payload = deleteConfirm.payload;
+    if (!payload?.entityType) return;
+
+    try {
+      if (payload.entityType === 'series') {
+        await deleteSeriesAdmin({ seriesId: payload.seriesId, token });
+        await loadArticles();
+        setMessage('Series deleted successfully.');
+        setMessageType('success');
+        return;
+      }
+
+      if (payload.entityType === 'chapter') {
+        await deleteChapterAdmin({ chapterId: payload.chapterId, token });
+        await loadArticles({ seriesId: payload.seriesId, chapterId: '', topicId: '' });
+        setMessage('Chapter deleted successfully.');
+        setMessageType('success');
+        return;
+      }
+
+      await deleteTopicAdmin({ topicId: payload.topicId, token });
+      await loadArticles({ seriesId: payload.seriesId, chapterId: payload.chapterId, topicId: '' });
+      setMessage('Topic deleted successfully.');
+      setMessageType('success');
+    } catch (error) {
+      setMessage(error.message || 'Delete failed.');
+      setMessageType('error');
+    } finally {
+      setDeleteConfirm({ isOpen: false, payload: null, title: '', message: '' });
+    }
   };
 
   const openShareForTopicSlug = async ({ topicSlug: nextTopicSlug, fallbackTitle = '', fallbackPath = '' }) => {
@@ -820,46 +887,8 @@ export default function ArticlesSection() {
     }
 
     if (action === 'delete') {
-      try {
-      if (payload.entityType === 'series') {
-        const shouldDelete = window.confirm('Delete this series and all its chapters/topics?');
-        if (!shouldDelete) {
-        return;
-        }
-
-        await deleteSeriesAdmin({ seriesId: payload.seriesId, token });
-        await loadArticles();
-        setMessage('Series deleted successfully.');
-        setMessageType('success');
-        return;
-      }
-
-      if (payload.entityType === 'chapter') {
-        const shouldDelete = window.confirm('Delete this chapter and all its topics?');
-        if (!shouldDelete) {
-        return;
-        }
-
-        await deleteChapterAdmin({ chapterId: payload.chapterId, token });
-        await loadArticles({ seriesId: payload.seriesId, chapterId: '', topicId: '' });
-        setMessage('Chapter deleted successfully.');
-        setMessageType('success');
-        return;
-      }
-
-      const shouldDelete = window.confirm('Delete this topic?');
-      if (!shouldDelete) {
-        return;
-      }
-
-      await deleteTopicAdmin({ topicId: payload.topicId, token });
-      await loadArticles({ seriesId: payload.seriesId, chapterId: payload.chapterId, topicId: '' });
-      setMessage('Topic deleted successfully.');
-      setMessageType('success');
-      } catch (error) {
-      setMessage(error.message || 'Delete failed.');
-      setMessageType('error');
-      }
+      requestDeleteConfirmation(payload);
+      return;
     }
   };
 
@@ -1026,6 +1055,16 @@ export default function ArticlesSection() {
         shareUrl={shareState.url}
         shareText={shareState.text}
         channels={shareState.channels}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, payload: null, title: '', message: '' })}
+        onConfirm={confirmDelete}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
       />
     </div>
   );

@@ -5,8 +5,6 @@ import { Award, Hash, Leaf, Sun, TrendingUp } from 'lucide-react';
 
 import wisdomData from '../../../data/wisdom.json';
 
-import { TOP_CONTRIBUTORS } from '../data/mockData';
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const buildUrl = (path) => `${API_BASE_URL}${path}`;
@@ -31,6 +29,7 @@ export default function TrendingSidebar({ onSelectTag }) {
 
   const [trendingTags, setTrendingTags] = useState([]);
   const [discoverTags, setDiscoverTags] = useState([]);
+  const [topContributors, setTopContributors] = useState([]);
 
   useEffect(() => {
     const now = new Date();
@@ -96,6 +95,33 @@ export default function TrendingSidebar({ onSelectTag }) {
       cancelled = true;
     };
   }, [dayNumber]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch(buildUrl('/api/discussions/contributors/top?limit=3'));
+        const payload = await readJsonSafely(response);
+        if (!response.ok) return;
+        if (cancelled) return;
+        const contributors = Array.isArray(payload?.contributors) ? payload.contributors : [];
+        setTopContributors(
+          contributors.map((c) => ({
+            name:
+              typeof c?.name === 'string' && c.name.trim()
+                ? c.name
+                : 'Unknown',
+            points: Number.isFinite(Number(c?.points)) ? Number(c.points) : 0,
+          }))
+        );
+      } catch {
+        if (!cancelled) setTopContributors([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const dailyWisdomText = useMemo(() => {
     const wisdoms = wisdomData?.wisdoms ?? [];
@@ -169,9 +195,27 @@ export default function TrendingSidebar({ onSelectTag }) {
         <h3 className="flex items-center text-[var(--text-main)] font-semibold mb-4 gap-2">
           <Award className="w-4 h-4 text-[var(--text-brand)]" />
           Top Contributors
+          <span className="relative inline-flex items-center group">
+            <button
+              type="button"
+              aria-label="How points are calculated"
+              className="w-4 h-4 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-muted)] text-[10px] leading-none font-semibold flex items-center justify-center"
+              title="Points = reactions + 5×posts + 2×comments + max(0, upvotes − downvotes)"
+            >
+              ⓘ
+            </button>
+            <span className="pointer-events-none absolute left-0 top-full z-20 hidden group-hover:block group-focus-within:block">
+              <span className="mt-2 inline-block max-w-[260px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] px-3 py-2 text-[11px] leading-snug text-[var(--text-muted)] shadow-sm">
+                Points = reactions + 5×posts + 2×comments + max(0, upvotes − downvotes)
+              </span>
+            </span>
+          </span>
         </h3>
+        <div className="text-[var(--text-muted)] text-xs opacity-80">
+          Ranked by activity score
+        </div>
         <ul className="space-y-4">
-          {TOP_CONTRIBUTORS.map((contributor, i) => (
+          {topContributors.map((contributor, i) => (
             <li key={i} className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-main)] font-bold text-xs border border-[var(--border-color)]">
@@ -182,7 +226,7 @@ export default function TrendingSidebar({ onSelectTag }) {
                 </span>
               </div>
               <span className="text-[var(--text-brand)] text-xs font-semibold bg-[var(--bg-secondary)] px-2 py-1 rounded-md">
-                {contributor.points}
+                {contributor.points} pts
               </span>
             </li>
           ))}

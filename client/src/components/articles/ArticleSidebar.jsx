@@ -1,7 +1,8 @@
 // Purpose: Display hierarchical article navigation (series, chapter, topic links).
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronRight, Ellipsis, Pencil, Share2, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Ellipsis, PencilLine, Share2, Trash2 } from 'lucide-react';
 
 const EXPANDED_SERIES_STORAGE_KEY = 'prakritiai.articleIndex.expandedSeries';
 const EXPANDED_CHAPTERS_STORAGE_KEY = 'prakritiai.articleIndex.expandedChapters';
@@ -45,6 +46,8 @@ const buildChapterExpansionMap = (articleTree, stored) => {
 };
 
 const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, canShare = false, onManageAction }) => {
+	const MotionDiv = motion.div;
+
 	const [expandedSeries, setExpandedSeries] = useState(() => {
 		const stored = readJsonObject(EXPANDED_SERIES_STORAGE_KEY);
 		return buildSeriesExpansionMap(articleTree, stored);
@@ -95,53 +98,67 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, ca
 
 	const renderMenu = (target) => {
 		const hasMenuAccess = canManage || canShare;
-		if (!hasMenuAccess || !menuTarget || menuTarget.type !== target.type || menuTarget.id !== target.id) {
-			return null;
-		}
+
+		const isOpen =
+			hasMenuAccess && !!menuTarget && menuTarget.type === target.type && menuTarget.id === target.id;
+
+		if (!hasMenuAccess) return null;
 
 		return (
-			<div
-				onClick={(event) => event.stopPropagation()}
-				className="absolute right-0 top-8 z-40 min-w-[150px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-soft)] p-1"
-			>
-				<button
-					type="button"
-					onClick={() => {
-						onManageAction?.('share', target.payload);
-						setMenuTarget(null);
-					}}
-					className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)]"
-				>
-					<Share2 size={14} />
-					Share
-				</button>
-				{canManage && (
-					<button
-						type="button"
-						onClick={() => {
-							onManageAction?.('rename', target.payload);
-							setMenuTarget(null);
-						}}
-						className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)]"
+			<AnimatePresence>
+				{isOpen ? (
+					<MotionDiv
+						onClick={(event) => event.stopPropagation()}
+						initial={{ opacity: 0, y: 6, scale: 0.98 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						exit={{ opacity: 0, y: 6, scale: 0.98 }}
+						transition={{ duration: 0.15, ease: 'easeOut' }}
+						className="absolute right-0 top-8 z-40 w-40 overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm"
+						role="menu"
 					>
-						<Pencil size={14} />
-						Rename
-					</button>
-				)}
-				{canManage && (
-					<button
-						type="button"
-						onClick={() => {
-							onManageAction?.('delete', target.payload);
-							setMenuTarget(null);
-						}}
-						className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-[var(--bg-secondary)]"
-					>
-						<Trash2 size={14} />
-						Delete
-					</button>
-				)}
-			</div>
+						<button
+							type="button"
+							role="menuitem"
+							onClick={() => {
+								onManageAction?.('share', target.payload);
+								setMenuTarget(null);
+							}}
+							className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+						>
+							<Share2 className="w-4 h-4" />
+							Share
+						</button>
+						{canManage ? (
+							<button
+								type="button"
+								role="menuitem"
+								onClick={() => {
+									onManageAction?.('rename', target.payload);
+									setMenuTarget(null);
+								}}
+								className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+							>
+								<PencilLine className="w-4 h-4" />
+								Rename
+							</button>
+						) : null}
+						{canManage ? (
+							<button
+								type="button"
+								role="menuitem"
+								onClick={() => {
+									onManageAction?.('delete', target.payload);
+									setMenuTarget(null);
+								}}
+								className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+							>
+								<Trash2 className="w-4 h-4" />
+								Delete
+							</button>
+						) : null}
+					</MotionDiv>
+				) : null}
+			</AnimatePresence>
 		);
 	};
 
@@ -188,7 +205,9 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, ca
 												payload: { entityType: 'series', seriesId: series.id },
 											})
 										}
-										className="p-1.5 rounded text-[var(--text-muted)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-main)]"
+										className="inline-flex items-center justify-center rounded-full p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+										aria-label="Series actions"
+										aria-haspopup="menu"
 									>
 										<Ellipsis size={16} />
 									</button>
@@ -241,7 +260,9 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, ca
 																	payload: { entityType: 'chapter', seriesId: series.id, chapterId: chapter.id },
 																})
 															}
-															className="p-1.5 rounded text-[var(--text-muted)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-main)]"
+															className="inline-flex items-center justify-center rounded-full p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+															aria-label="Chapter actions"
+															aria-haspopup="menu"
 														>
 															<Ellipsis size={14} />
 														</button>
@@ -288,7 +309,9 @@ const ArticleSidebar = ({ articleTree, selected, onSelect, canManage = false, ca
 																					},
 																				})
 																			}
-																			className="p-1 rounded text-[var(--text-muted)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-main)]"
+																			className="inline-flex items-center justify-center rounded-full p-1.5 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+																			aria-label="Topic actions"
+																			aria-haspopup="menu"
 																		>
 																			<Ellipsis size={12} />
 																		</button>

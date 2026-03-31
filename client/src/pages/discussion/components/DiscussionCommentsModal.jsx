@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUp, ArrowDown, List, ListOrdered, MessageCircle, Send, Type, User, X } from 'lucide-react';
+import { ArrowUp, ArrowDown, List, ListOrdered, MessageCircle, PencilLine, Send, Trash2, Type, User, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	addPostComment,
@@ -8,6 +8,7 @@ import {
 	updatePostComment,
 	votePostComment,
 } from '../../../services/discussionCommentsService';
+import ConfirmDialog from './ConfirmDialog.jsx';
 
 const formatRelativeTime = (timestamp) => {
 	const diffMs = Date.now() - Number(timestamp || 0);
@@ -85,6 +86,7 @@ export default function DiscussionCommentsModal({
 	const [loading, setLoading] = useState(false);
 	const [editingId, setEditingId] = useState(null);
 	const [editDraft, setEditDraft] = useState('');
+	const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, comment: null });
 
 	const listRef = useRef(null);
 	const textareaRef = useRef(null);
@@ -274,16 +276,34 @@ export default function DiscussionCommentsModal({
 			return;
 		}
 		if (!canManageComment(comment)) return;
+		setDeleteConfirm({ isOpen: true, comment });
+	};
 
-		const ok = window.confirm('Delete this comment? This will also delete its replies.');
-		if (!ok) return;
+	const confirmDeleteComment = () => {
+		const comment = deleteConfirm.comment;
+		if (!threadKey || !comment?.id) {
+			setDeleteConfirm({ isOpen: false, comment: null });
+			return;
+		}
+		if (!isAuthed) {
+			setDeleteConfirm({ isOpen: false, comment: null });
+			onRequireAuth?.();
+			return;
+		}
+		if (!canManageComment(comment)) {
+			setDeleteConfirm({ isOpen: false, comment: null });
+			return;
+		}
 
 		setError('');
 		setLoading(true);
 		deletePostComment({ postId: threadKey, commentId: comment.id, token })
 			.then(() => removeCommentThread(comment.id))
 			.catch((e2) => setError(e2?.message || 'Failed to delete comment'))
-			.finally(() => setLoading(false));
+			.finally(() => {
+				setLoading(false);
+				setDeleteConfirm({ isOpen: false, comment: null });
+			});
 	};
 
 	const handleVote = (commentId, direction) => {
@@ -548,16 +568,22 @@ export default function DiscussionCommentsModal({
 																	<button
 																		type="button"
 																		onClick={() => startEdit(comment)}
-																		className="text-xs font-medium text-[var(--text-brand)] hover:underline"
 																		disabled={isEditing}
+																		className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] px-2.5 py-1.5 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+																		aria-label="Edit comment"
+																		title="Edit"
 																	>
+																		<PencilLine className="w-3.5 h-3.5" />
 																		Edit
 																	</button>
 																	<button
 																		type="button"
 																		onClick={() => handleDelete(comment)}
-																		className="text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-main)]"
+																		className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] px-2.5 py-1.5 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors"
+																		aria-label="Delete comment"
+																		title="Delete"
 																	>
+																		<Trash2 className="w-3.5 h-3.5" />
 																		Delete
 																	</button>
 																</div>
@@ -572,6 +598,16 @@ export default function DiscussionCommentsModal({
 							)}
 						</div>
 					</MotionDiv>
+
+					<ConfirmDialog
+						isOpen={deleteConfirm.isOpen}
+						onClose={() => setDeleteConfirm({ isOpen: false, comment: null })}
+						onConfirm={confirmDeleteComment}
+						title="Delete comment?"
+						message="This will also delete its replies."
+						confirmLabel="Delete"
+						cancelLabel="Cancel"
+					/>
 				</div>
 			)}
 		</AnimatePresence>

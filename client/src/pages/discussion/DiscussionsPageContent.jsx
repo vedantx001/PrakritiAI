@@ -1,19 +1,23 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Filter, Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import CreatePostModal from './components/CreatePostModal.jsx';
 import DiscussionCard from './components/DiscussionCard.jsx';
 import DiscussionCommentsModal from './components/DiscussionCommentsModal.jsx';
 import SearchHeader from './components/SearchHeader.jsx';
 import SkeletonCard from './components/SkeletonCard.jsx';
+import ConfirmDialog from './components/ConfirmDialog.jsx';
 import TrendingSidebar from './components/TrendingSidebar.jsx';
 import AuthModal from '../../components/auth/AuthModal.jsx';
+import ShareModal from '../../components/articles/shared/ShareModal.jsx';
 import useDebounce from './hooks/useDebounce';
 import {
   createDiscussionPost,
   deleteDiscussionPost,
   fetchDiscussionPosts,
+  fetchDiscussionPostById,
   likeDiscussionPost,
   saveDiscussionPost,
   unlikeDiscussionPost,
@@ -24,6 +28,8 @@ import { useAuth } from '../../context/useAuth.js';
 
 export default function DiscussionsPageContent() {
   const MotionDiv = motion.div;
+
+  const location = useLocation();
 
   const { token, user, isAuthenticated } = useAuth();
 
@@ -40,6 +46,70 @@ export default function DiscussionsPageContent() {
   const [activeCommentPost, setActiveCommentPost] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+
+  const [deletePostConfirm, setDeletePostConfirm] = useState({
+    isOpen: false,
+    post: null,
+  });
+
+  const [shareState, setShareState] = useState({
+    isOpen: false,
+    title: '',
+    url: '',
+    text: '',
+    channels: [
+      { id: 'copy', label: 'Copy link' },
+      { id: 'whatsapp', label: 'WhatsApp' },
+    ],
+  });
+
+  const resolveAbsoluteUrl = (canonicalPath) => {
+    if (!canonicalPath) return '';
+    if (typeof window === 'undefined') return canonicalPath;
+    return `${window.location.origin}${canonicalPath}`;
+  };
+
+  const openShareForPost = (post) => {
+    if (!post?.id) return;
+    const canonicalPath = `/discussions?postId=${encodeURIComponent(post.id)}`;
+    setShareState((previous) => ({
+      ...previous,
+      isOpen: true,
+      title: post?.title || '',
+      text: post?.title || '',
+      url: resolveAbsoluteUrl(canonicalPath),
+      channels: [
+        { id: 'copy', label: 'Copy link' },
+        { id: 'whatsapp', label: 'WhatsApp' },
+      ],
+    }));
+  };
+
+  const requestDeletePost = (post) => {
+    if (!isAuthenticated) {
+      alert('Please log in to delete a post');
+      return;
+    }
+    if (!post?.id) return;
+    setDeletePostConfirm({ isOpen: true, post });
+  };
+
+  const confirmDeletePost = async () => {
+    const target = deletePostConfirm.post;
+    if (!target?.id) {
+      setDeletePostConfirm({ isOpen: false, post: null });
+      return;
+    }
+
+    try {
+      await deleteDiscussionPost(target.id, { token });
+      setPosts((prev) => prev.filter((p) => p.id !== target.id));
+    } catch (err) {
+      alert(err?.message || 'Failed to delete post');
+    } finally {
+      setDeletePostConfirm({ isOpen: false, post: null });
+    }
+  };
 
   const patchPost = (postId, updater) => {
     setPosts((prev) =>
@@ -136,6 +206,12 @@ export default function DiscussionsPageContent() {
 
   const debouncedSearch = useDebounce(searchTerm, 300);
   const loaderRef = useRef(null);
+  const handledSharedPostRef = useRef(false);
+
+  const sharedPostId = useMemo(() => {
+    const params = new URLSearchParams(location.search || '');
+    return params.get('postId') || '';
+  }, [location.search]);
 
   useEffect(() => {
     let cancelled = false;
@@ -163,6 +239,37 @@ export default function DiscussionsPageContent() {
       cancelled = true;
     };
   }, [token]);
+
+  useEffect(() => {
+    if (!sharedPostId) return;
+    if (handledSharedPostRef.current) return;
+    if (loading) return;
+
+    const existing = posts.find((p) => String(p?.id) === String(sharedPostId));
+    if (existing) {
+      handledSharedPostRef.current = true;
+      setActiveCommentPost(existing);
+      setIsCommentsOpen(true);
+      return;
+    }
+
+    handledSharedPostRef.current = true;
+
+    fetchDiscussionPostById({ postId: sharedPostId, token })
+      .then((post) => {
+        if (!post?.id) return;
+        setPosts((prev) => {
+          const already = prev.some((p) => String(p?.id) === String(post.id));
+          if (already) return prev;
+          return [post, ...prev];
+        });
+        setActiveCommentPost(post);
+        setIsCommentsOpen(true);
+      })
+      .catch(() => {
+        // ignore
+      });
+  }, [sharedPostId, loading, posts, token]);
 
   const filteredPosts = useMemo(() => {
     if (!debouncedSearch) return posts;
@@ -266,23 +373,10 @@ export default function DiscussionsPageContent() {
                         setEditingPost(post);
                         setIsModalOpen(true);
                       }}
-                      onDelete={async () => {
-                        if (!isAuthenticated) {
-                          alert('Please log in to delete a post');
-                          return;
-                        }
-                        const ok = window.confirm('Delete this post?');
-                        if (!ok) return;
-
-                        try {
-                          await deleteDiscussionPost(post.id, { token });
-                          setPosts((prev) => prev.filter((p) => p.id !== post.id));
-                        } catch (err) {
-                          alert(err?.message || 'Failed to delete post');
-                        }
-                      }}
+                      onDelete={requestDeletePost}
                       onToggleLike={handleToggleLike}
                       onToggleBookmark={handleToggleBookmark}
+                      onShare={openShareForPost}
                     />
                   ))}
 
@@ -396,6 +490,25 @@ export default function DiscussionsPageContent() {
         initialMode={authMode}
         onClose={() => setIsAuthOpen(false)}
         onAuthenticated={() => setIsAuthOpen(false)}
+      />
+
+      <ShareModal
+        isOpen={shareState.isOpen}
+        onClose={() => setShareState((previous) => ({ ...previous, isOpen: false }))}
+        title={shareState.title}
+        shareUrl={shareState.url}
+        shareText={shareState.text}
+        channels={shareState.channels}
+      />
+
+      <ConfirmDialog
+        isOpen={deletePostConfirm.isOpen}
+        title="Delete post?"
+        message="This action can’t be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onClose={() => setDeletePostConfirm({ isOpen: false, post: null })}
+        onConfirm={confirmDeletePost}
       />
     </div>
   );
