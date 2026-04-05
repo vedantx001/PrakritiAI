@@ -25,7 +25,7 @@ POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "shreyapatel@gmail.com",
+  "email": "aliashroff@gmail.com",
   "password": "12345678"
 }
 
@@ -274,7 +274,7 @@ Content-Type: application/json
 
 ### Logged-in AI request (saved)
 POST http://localhost:5000/api/ai/analyze
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5OWZmZDg3NTdlNzQ0NGMwMWUxZDEwNyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc1MzE3OTU1LCJleHAiOjE3NzU5MjI3NTV9.eKeCwLid44ItoWG8j001KYe6eYwCJz7Tj1eMs3zSuUo
 Content-Type: application/json
 
 {

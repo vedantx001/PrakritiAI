@@ -5,6 +5,7 @@ import SymptomReport from "../models/SymptomReport.js";
 const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 
 const models = [
+  "stepfun/step-3.5-flash:free",
   "meta-llama/llama-3.3-70b-instruct:free",
   "meta-llama/llama-3.2-3b-instruct:free",
   "openai/gpt-oss-120b:free",

@@ -306,9 +306,9 @@ export const getTopDiscussionContributors = async (req, res) => {
     return res.json({ contributors: [] });
   }
 
-  const users = await User.find({ _id: { $in: userIds } }).select("name");
-  const nameById = new Map(
-    (users || []).map((u) => [u._id.toString(), u.name])
+  const users = await User.find({ _id: { $in: userIds } }).select("name role");
+  const metaById = new Map(
+    (users || []).map((u) => [u._id.toString(), { name: u.name, role: u.role }])
   );
 
   // Simple points model (kept server-side so UI stays unchanged):
@@ -317,6 +317,7 @@ export const getTopDiscussionContributors = async (req, res) => {
   // - comment upvotes add extra signal (downvotes reduce it)
   const rows = userIds
     .map((id) => {
+      const meta = metaById.get(id);
       const stats = byUserId.get(id);
       const reactions = Number(stats?.reactions || 0);
       const posts = Number(stats?.posts || 0);
@@ -329,12 +330,15 @@ export const getTopDiscussionContributors = async (req, res) => {
 
       return {
         id,
-        name: nameById.get(id) || "Unknown",
+        name: meta?.name || "Unknown",
         points,
+        role: meta?.role,
       };
     })
+    .filter((row) => row.role === 'user')
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
-    .slice(0, limit);
+    .slice(0, limit)
+    .map(({ role, ...rest }) => rest);
 
   res.json({ contributors: rows });
 };
