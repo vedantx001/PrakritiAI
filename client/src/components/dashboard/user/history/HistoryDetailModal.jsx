@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Calendar, Download, HeartPulse, Leaf, Sparkles, Utensils, X } from 'lucide-react';
+import { Calendar, HeartPulse, Leaf, Sparkles, Utensils, X } from 'lucide-react';
 import SeverityBadge from './SeverityBadge';
 
 const ActivitySquare = ({ size }) => (
@@ -160,14 +160,6 @@ export default function HistoryDetailModal({ item, onClose }) {
           </div>
         </div>
 
-        <div className="p-6 border-t border-[var(--border-color)] bg-[var(--bg-primary)] flex flex-col sm:flex-row justify-end gap-4">
-          <button
-            type="button"
-            className="px-5 py-2.5 bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] text-[var(--text-main)] font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 border border-[var(--border-color)]"
-          >
-            <Download size={18} /> Download Report
-          </button>
-        </div>
       </div>
     </div>
   );
