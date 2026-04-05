@@ -175,22 +175,14 @@ export const AyurvedicResultsContent = ({ data = ANALYSIS_DATA }) => {
               key={idx} 
               className="group flex flex-col bg-[var(--bg-card)] rounded-2xl overflow-hidden border border-[var(--border-color)] shadow-sm hover:shadow-xl hover:border-[var(--text-brand)]/30 transition-all duration-300"
             >
-              {/* Image Header */}
-              <div className="relative h-56 overflow-hidden">
-                <img 
-                  src={herb.image} 
-                  alt={herb.name}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 p-5 w-full">
-                  <h3 className="text-white font-bold text-lg leading-tight shadow-sm">
-                    {herb.name.split('(')[0]}
-                  </h3>
-                  <p className="text-white/80 text-xs italic mt-1">
-                    {herb.name.match(/\((.*?)\)/)?.[1] || herb.name}
-                  </p>
-                </div>
+              {/* Header (no image) */}
+              <div className="bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-card)] border-b border-[var(--border-color)] p-5">
+                <h3 className="text-[var(--text-main)] font-bold text-lg leading-tight">
+                  {herb.name.split('(')[0].trim()}
+                </h3>
+                <p className="text-[var(--text-muted)] text-xs italic mt-1">
+                  {herb.name.match(/\((.*?)\)/)?.[1] || herb.name}
+                </p>
               </div>
 
               {/* Body */}
