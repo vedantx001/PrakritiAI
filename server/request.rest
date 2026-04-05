@@ -344,7 +344,3 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwN
 ### Get health summary
 GET http://localhost:5000/api/dashboard/health-summary
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzUwMDMwNDRhMjJlODU4NzE3ODFhYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY5MzU3NjYwLCJleHAiOjE3Njk5NjI0NjB9.z_3f1dy0bR00TT7xnG4Q7kSqtSpAiydAjTu5fhDXde4
-
-### Test AI Endpoint
-GET http://localhost:5000/api/ai-test
-Content-Type: application/json

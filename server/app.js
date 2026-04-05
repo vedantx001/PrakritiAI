@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 import { createRequire } from "module";
@@ -19,7 +20,6 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import saveRoutes from "./routes/saveRoutes.js";
 import discussionRoutes from "./routes/discussionRoutes.js";
 import { aiLimiter } from "./middlewares/rateLimit.js";
-import aiTestRoutes from "./routes/aiTestRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +27,27 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
+
+const clientUrl = (process.env.CLIENT_URL || "").trim().replace(/\/+$/, "");
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser clients (no Origin header).
+    if (!origin) return callback(null, true);
+
+    if (!clientUrl) return callback(null, false);
+
+    const normalizedOrigin = String(origin).trim().replace(/\/+$/, "");
+    return callback(null, normalizedOrigin === clientUrl);
+  },
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Authorization", "Content-Type"],
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // If deployed behind a reverse proxy (Render/NGINX/etc), set TRUST_PROXY=1
 // so req.ip reflects the real client IP for rate limiting.
@@ -85,7 +106,6 @@ app.use("/api/articles/series", articleSeriesRoutes);
 app.use("/api/admin/articles", adminArticleRoutes);
 app.use("/api/articles", articleChapterRoutes);
 app.use("/api/articles", articleTopicRoutes);
-app.use("/api/ai-test", aiTestRoutes);
 
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 
