@@ -4,7 +4,6 @@ export const MOCK_POSTS = [
     author: {
       name: 'Dr. Ananya Sharma',
       avatar: 'https://i.pravatar.cc/150?u=ananya',
-      role: 'Vaidya',
     },
     title: 'Best Morning Routine for Vata Balance during Autumn',
     preview:
@@ -20,7 +19,6 @@ export const MOCK_POSTS = [
     author: {
       name: 'Vikram Singh',
       avatar: 'https://i.pravatar.cc/150?u=vikram',
-      role: 'Practitioner',
     },
     title: 'Is Ashwagandha Safe Daily? A Clinical Perspective',
     preview:
@@ -36,7 +34,6 @@ export const MOCK_POSTS = [
     author: {
       name: 'Priya Patel',
       avatar: 'https://i.pravatar.cc/150?u=priya',
-      role: 'Enthusiast',
     },
     title: 'Kapha Lifestyle Mistakes Beginners Make',
     preview:
@@ -52,7 +49,6 @@ export const MOCK_POSTS = [
     author: {
       name: 'Arjun Verma',
       avatar: 'https://i.pravatar.cc/150?u=arjun',
-      role: 'Yoga Instructor',
     },
     title: 'Integrating Pranayama with Dosha Specific Diets',
     preview:
@@ -68,7 +64,6 @@ export const MOCK_POSTS = [
     author: {
       name: 'Maya Rao',
       avatar: 'https://i.pravatar.cc/150?u=maya',
-      role: 'Nutritionist',
     },
     title: 'Triphala: The Gentle Detoxifier',
     preview:

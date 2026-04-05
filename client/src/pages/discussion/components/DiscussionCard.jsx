@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Bookmark,
-  CheckCircle,
   Clock,
   Heart,
   MessageCircle,
@@ -71,13 +70,8 @@ function DiscussionCard({
           <div>
             <h3 className="font-medium text-[var(--text-main)] flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
               {post.author.name}
-              {post.author.role === 'Vaidya' && (
-                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-[var(--text-brand)]" />
-              )}
             </h3>
             <div className="flex items-center text-xs text-[var(--text-muted)] mt-0.5">
-              <span>{post.author.role}</span>
-              <span className="mx-2">•</span>
               <Clock className="w-3 h-3 mr-1 inline" />
               <span>{post.timestamp}</span>
             </div>

@@ -3,12 +3,6 @@ import DiscussionLike from "../models/DiscussionLike.js";
 import DiscussionComment from "../models/DiscussionComment.js";
 import User from "../models/User.js";
 
-const roleToDisplayRole = (role) => {
-  if (role === "admin") return "Vaidya";
-  if (role === "moderator") return "Practitioner";
-  return "Member";
-};
-
 const avatarForUserId = (userId) => `https://i.pravatar.cc/150?u=${userId}`;
 
 const formatRelativeTime = (date) => {
@@ -43,7 +37,6 @@ const toClientPost = (post, viewerUserId, viewerState = {}) => {
       id: authorId,
       name: author?.name,
       avatar: avatarForUserId(authorId || post._id),
-      role: roleToDisplayRole(author?.role),
     },
     title: post.title,
     preview: post.content,
@@ -71,7 +64,7 @@ export const listDiscussionPosts = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("author", "name role"),
+      .populate("author", "name"),
   ]);
 
   const viewerId = req.user?._id;
@@ -109,7 +102,7 @@ export const getDiscussionPostById = async (req, res) => {
 
   const post = await DiscussionPost.findById(postId).populate(
     "author",
-    "name role"
+    "name"
   );
 
   if (!post) return res.status(404).json({ message: "Post not found" });
@@ -368,7 +361,7 @@ export const createDiscussionPost = async (req, res) => {
 
   const populated = await DiscussionPost.findById(post._id).populate(
     "author",
-    "name role"
+    "name"
   );
 
   res.status(201).json({ post: toClientPost(populated, req.user._id) });
@@ -415,7 +408,7 @@ export const updateDiscussionPost = async (req, res) => {
 
   const populated = await DiscussionPost.findById(post._id).populate(
     "author",
-    "name role"
+    "name"
   );
 
   res.json({ post: toClientPost(populated, req.user._id) });
