@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import DOMPurify from 'dompurify';
 import {
   CheckCircle,
   XCircle,
@@ -20,6 +21,39 @@ import {
 import { useAuth } from '../../../context/useAuth';
 
 const POLL_INTERVAL_MS = 15000;
+
+const sanitizeContributionHtml = (unsafeHtml) =>
+  DOMPurify.sanitize(String(unsafeHtml || ''), {
+    ALLOWED_TAGS: [
+      'p',
+      'br',
+      'strong',
+      'em',
+      'u',
+      's',
+      'a',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'ul',
+      'ol',
+      'li',
+      'blockquote',
+      'code',
+      'pre',
+      'hr',
+      'table',
+      'thead',
+      'tbody',
+      'tr',
+      'th',
+      'td',
+    ],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'colspan', 'rowspan'],
+  });
 
 const toHandle = (name, email) => {
   const fromEmail = String(email || '').split('@')[0]?.trim();
@@ -97,6 +131,16 @@ export default function ContributionHandle() {
     () => queue.find((c) => c.id === selectedId),
     [queue, selectedId]
   );
+
+  const sanitizedOriginalContent = useMemo(() => {
+    if (!selectedContribution?.originalContent) return '';
+    return sanitizeContributionHtml(selectedContribution.originalContent);
+  }, [selectedContribution?.originalContent]);
+
+  const sanitizedProposedContent = useMemo(() => {
+    if (!selectedContribution?.proposedContent) return '';
+    return sanitizeContributionHtml(selectedContribution.proposedContent);
+  }, [selectedContribution?.proposedContent]);
 
   const loadQueue = async ({ keepSelection = true } = {}) => {
     if (!token) {
@@ -385,7 +429,7 @@ export default function ContributionHandle() {
                       </div>
                       <div
                         className="p-6 overflow-y-auto article-prose"
-                        dangerouslySetInnerHTML={{ __html: selectedContribution.originalContent }}
+                        dangerouslySetInnerHTML={{ __html: sanitizedOriginalContent }}
                       />
                     </div>
 
@@ -399,7 +443,7 @@ export default function ContributionHandle() {
                       </div>
                       <div
                         className="p-6 overflow-y-auto article-prose"
-                        dangerouslySetInnerHTML={{ __html: selectedContribution.proposedContent }}
+                        dangerouslySetInnerHTML={{ __html: sanitizedProposedContent }}
                       />
                     </div>
                   </div>
@@ -410,7 +454,7 @@ export default function ContributionHandle() {
                     </div>
                     <div
                       className="p-8 overflow-y-auto article-prose"
-                      dangerouslySetInnerHTML={{ __html: selectedContribution.proposedContent }}
+                      dangerouslySetInnerHTML={{ __html: sanitizedProposedContent }}
                     />
                   </div>
                 )}
