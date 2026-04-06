@@ -5,7 +5,7 @@ import { Award, Hash, Leaf, Sun, TrendingUp } from 'lucide-react';
 
 import wisdomData from '../../../data/wisdom.json';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const buildUrl = (path) => `${API_BASE_URL}${path}`;
 

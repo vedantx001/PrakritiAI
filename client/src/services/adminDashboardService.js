@@ -1,8 +1,12 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const buildUrl = (path) => `${API_BASE_URL}${path}`;
+
 const request = async (path, { method = 'GET', token, body } = {}) => {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(path, {
+  const res = await fetch(buildUrl(path), {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
