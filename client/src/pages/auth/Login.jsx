@@ -9,6 +9,7 @@ const Login = () => {
   const location = useLocation();
   const [error, setError] = useState('');
   const prefill = location.state?.prefill ?? {};
+  const redirectTo = location.state?.from?.pathname;
 
   const handleLogin = async ({ email, password }) => {
     setError('');
@@ -24,7 +25,7 @@ const Login = () => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/user'} replace />;
+    return <Navigate to={redirectTo || (user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/user')} replace />;
   }
 
   return (

@@ -19,6 +19,9 @@ const ThreeScene = () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     mountEl.appendChild(renderer.domElement);
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
 
     // Lighting
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
@@ -200,7 +203,7 @@ const ThreeScene = () => {
 
 const Hero = () => {
   return (
-    <section id="home" className="relative w-full min-h-screen flex items-center bg-[var(--bg-secondary)] overflow-hidden pt-20 lg:pt-0">
+    <section id="home" className="relative w-full min-h-screen flex items-center bg-[var(--bg-secondary)] overflow-hidden pt-24 sm:pt-28 lg:pt-0">
       
       {/* Background Gradients/Blobs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-100/40 rounded-full blur-[100px] -translate-y-1/4 translate-x-1/4 pointer-events-none" />
@@ -221,7 +224,7 @@ const Hero = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-5xl sm:text-6xl lg:text-6xl font-extrabold text-[var(--text-main)] leading-[1.1] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[var(--text-main)] leading-[1.1] tracking-tight">
               Ancient Ayurvedic Wisdom <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">
                 Powered by Modern AI.

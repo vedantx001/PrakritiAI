@@ -8,7 +8,7 @@ import Footer from "../components/landing/Footer";
 
 const Landing = () => {
   return (
-    <div className="bg-[var(--bg-primary)] text-[var(--text-main)]">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] overflow-x-hidden">
         <Navbar />
         <Hero />
         <Features />

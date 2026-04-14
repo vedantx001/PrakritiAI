@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Lock
 } from 'lucide-react';
+import { useAuth } from '../../context/useAuth';
 
 // --- Mock Data ---
 const ARTICLES = [
@@ -91,7 +92,7 @@ const AuthGuard = ({ children }) => {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-gray-900 text-white text-xs rounded-xl shadow-xl z-50 text-center pointer-events-none"
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 max-w-[calc(100vw-2rem)] p-3 bg-gray-900 text-white text-xs rounded-xl shadow-xl z-50 text-center pointer-events-none"
           >
             <div className="flex flex-col items-center gap-1">
               <Lock className="w-3 h-3 text-emerald-400" />
@@ -180,11 +181,11 @@ const BlogCard = ({ data }) => (
       
       <div className="flex-1">
         {/* Header */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
+        <div className="flex items-start justify-between mb-2 gap-3">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
             <span className="font-bold text-[var(--text-main)]">{data.author}</span>
-            <span className="text-[var(--text-muted)] text-sm">{data.handle}</span>
-            <span className="text-[var(--text-muted)] text-sm">• {data.time}</span>
+            <span className="text-[var(--text-muted)] text-xs sm:text-sm">{data.handle}</span>
+            <span className="text-[var(--text-muted)] text-xs sm:text-sm">• {data.time}</span>
           </div>
           <button className="text-[var(--text-muted)] hover:text-[var(--text-main)]"><MoreHorizontal className="w-5 h-5" /></button>
         </div>
@@ -230,6 +231,7 @@ const BlogCard = ({ data }) => (
 const ArticlesSnippets = () => {
   const [activeTab, setActiveTab] = useState('articles'); // 'articles' | 'blogs'
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <section id="articles" className="py-24 bg-[var(--bg-secondary)]">
@@ -248,10 +250,10 @@ const ArticlesSnippets = () => {
           </div>
 
           {/* Custom Tab Switcher */}
-          <div className="bg-[var(--bg-card)] p-1.5 rounded-xl border border-[var(--border-color)] shadow-sm inline-flex">
+          <div className="bg-[var(--bg-card)] p-1.5 rounded-xl border border-[var(--border-color)] shadow-sm inline-flex w-full md:w-auto">
             <button
               onClick={() => setActiveTab('articles')}
-              className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+              className={`flex-1 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
                 activeTab === 'articles' 
                   ? 'bg-emerald-600 text-white shadow-md' 
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
@@ -261,7 +263,7 @@ const ArticlesSnippets = () => {
             </button>
             <button
               onClick={() => setActiveTab('blogs')}
-              className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+              className={`flex-1 px-4 sm:px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
                 activeTab === 'blogs' 
                   ? 'bg-emerald-600 text-white shadow-md' 
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
@@ -323,6 +325,18 @@ const ArticlesSnippets = () => {
             onClick={() => {
               if (activeTab === 'articles') {
                 navigate('/articles');
+              } else {
+                if (!isAuthenticated) {
+                  navigate('/auth/login', {
+                    state: {
+                      from: { pathname: '/dashboard/user/discussions' },
+                    },
+                  });
+                  return;
+                }
+
+                const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
+                navigate(isAdmin ? '/discussions' : '/dashboard/user/discussions');
               }
             }}
             className="inline-flex items-center gap-2 text-emerald-700 font-semibold hover:gap-3 transition-all"

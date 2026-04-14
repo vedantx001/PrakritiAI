@@ -18,16 +18,17 @@ const Navbar = () => {
 
   return (
     <nav
-      className="fixed top-0 left-0 w-full z-50 bg-[var(--bg-primary)] backdrop-blur-md shadow-sm border-b border-[var(--border-color)] py-6"
+      className="fixed top-0 left-0 w-full z-50 bg-[var(--bg-primary)] backdrop-blur-md shadow-sm border-b border-[var(--border-color)] py-4 sm:py-5 md:py-6 overflow-x-clip"
     >
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center gap-3">
         
-        {/* --- Left: Brand Logo (Bigger & Cleaner) --- */}
         <Link to="/" className="flex items-center gap-3 group isolate">
           <img
             src="/LogoNoBg.png"
             alt="PrakritiAI"
-            className="w-12 h-12 scale-[2] translate-x-[2px] object-contain bg-transparent"
+            className="w-12 h-12 object-contain bg-transparent 
+                      scale-[1.8] md:scale-[2] 
+                      translate-x-[2px] md:translate-x-[3px]"
           />
 
           <span className="text-2xl md:text-3xl font-bold tracking-tight text-[var(--text-main)] leading-none group-hover:text-emerald-700 transition-colors">
@@ -36,7 +37,7 @@ const Navbar = () => {
         </Link>
 
         {/* --- Center/Right: Desktop Navigation --- */}
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden lg:flex items-center gap-10">
           {/* Nav Links (Bigger Font) */}
           <div className="flex items-center gap-8">
             {navLinks.map((link) => (
@@ -100,7 +101,7 @@ const Navbar = () => {
 
         {/* --- Mobile Menu Toggle --- */}
         <button
-          className="md:hidden p-2 text-[var(--text-main)] hover:text-emerald-700 transition-colors bg-[var(--bg-card)] rounded-lg backdrop-blur-sm"
+          className="lg:hidden min-w-[44px] min-h-[44px] p-2 text-[var(--text-main)] hover:text-emerald-700 transition-colors bg-[var(--bg-card)] rounded-lg backdrop-blur-sm flex items-center justify-center"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
@@ -109,7 +110,7 @@ const Navbar = () => {
 
       {/* --- Mobile Menu Dropdown --- */}
       <div
-        className={`md:hidden absolute top-full left-0 w-full bg-[var(--bg-primary)] backdrop-blur-xl border-t border-[var(--border-color)] shadow-xl transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`lg:hidden absolute top-full left-0 w-full bg-[var(--bg-primary)] backdrop-blur-xl border-t border-[var(--border-color)] shadow-xl transition-all duration-300 ease-in-out overflow-hidden ${
           isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >

@@ -54,6 +54,14 @@ function App() {
           }
         />
         <Route
+          path="/dashboard/user/discussions"
+          element={
+            <ProtectedRoute role="user">
+              <UserDashboardHome initialTab="Discussions" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/user/saved"
           element={
             <ProtectedRoute role="user">

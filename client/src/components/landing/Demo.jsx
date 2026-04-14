@@ -117,10 +117,10 @@ const Symptoms = () => {
         <div className="absolute top-[20%] left-[10%] w-12 h-12 bg-emerald-200/20 rounded-full animate-float-slow" />
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 relative z-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         
         {/* Main Glass Container */}
-        <div className="relative bg-[var(--bg-card)] backdrop-blur-md border border-[var(--border-color)] rounded-[2rem] p-8 md:p-14 text-center overflow-hidden">
+        <div className="relative bg-[var(--bg-card)] backdrop-blur-md border border-[var(--border-color)] rounded-[2rem] p-6 sm:p-8 lg:p-14 text-center overflow-hidden">
           
           {/* Decorative Top Line */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-1 bg-gradient-to-r from-transparent via-emerald-200 to-transparent"></div>
@@ -160,8 +160,8 @@ const Symptoms = () => {
                 </div>
               ) : null}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="lg:col-span-2">
                   <label htmlFor="symptoms" className="block text-sm font-semibold text-[var(--text-main)] mb-2">
                     Symptoms *
                   </label>
@@ -265,7 +265,7 @@ const Symptoms = () => {
                   </select>
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="lg:col-span-2">
                   <label htmlFor="additional_details" className="block text-sm font-semibold text-[var(--text-main)] mb-2">
                     Additional Details
                   </label>
@@ -296,7 +296,7 @@ const Symptoms = () => {
           </div>
 
           {/* Categories / Pills */}
-          <div className="flex flex-col items-center">
+          <div className="hidden md:flex flex-col items-center [@media(max-height:500px)]:!hidden">
             <span className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-4">
               Common Concerns
             </span>
@@ -305,7 +305,7 @@ const Symptoms = () => {
                 <button
                   key={index}
                   onClick={() => setFormData((prev) => ({ ...prev, symptoms: item.label }))}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-[var(--text-muted)] text-sm font-medium hover:border-emerald-400 hover:text-emerald-700 hover:bg-[var(--bg-secondary)] hover:shadow-sm transition-all duration-200 active:scale-95"
+                  className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-[var(--text-muted)] text-sm font-medium hover:border-emerald-400 hover:text-emerald-700 hover:bg-[var(--bg-secondary)] hover:shadow-sm transition-all duration-200 active:scale-95"
                 >
                   {item.icon}
                   {item.label}

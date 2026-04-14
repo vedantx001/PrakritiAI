@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   History, 
@@ -9,8 +10,11 @@ import {
   ArrowRight,
   User
 } from 'lucide-react';
+import { useAuth } from '../../context/useAuth';
 
 const DashboardPreview = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   
   // Feature List
   const benefits = [
@@ -85,7 +89,19 @@ const DashboardPreview = () => {
             </div>
 
             {/* CTA Button */}
-            <button className="group relative inline-flex items-center justify-center gap-3 bg-[var(--text-main)] text-[var(--bg-primary)] px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-600 transition-all duration-300 shadow-xl hover:shadow-emerald-600/30 hover:-translate-y-1">
+            <button
+              type="button"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  navigate('/auth/signup');
+                  return;
+                }
+
+                const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
+                navigate(isAdmin ? '/dashboard/admin' : '/dashboard/user');
+              }}
+              className="group relative inline-flex items-center justify-center gap-3 bg-[var(--text-main)] text-[var(--bg-primary)] px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-600 transition-all duration-300 shadow-xl hover:shadow-emerald-600/30 hover:-translate-y-1"
+            >
               Unlock Your Dashboard
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>

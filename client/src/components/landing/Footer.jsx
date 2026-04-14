@@ -2,82 +2,46 @@ import React from 'react';
 import { Leaf, ExternalLink } from 'lucide-react';
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
+  const currentYear = 2026;
 
-  const links = {
-    product: [
-      { name: 'Features', href: '#features' },
-      { name: 'Ayurveda AI', href: '#demo' },
-      { name: 'Symptom Tracker', href: '#' },
-    ],
-    resources: [
-      { name: 'Blog', href: '#articles' },
-      { name: 'Herbal Database', href: '#' },
-      { name: 'Community', href: '#' },
-    ],
-    developer: [
-      { name: 'Portfolio', href: '#' },
-      { name: 'GitHub', href: '#' },
-      { name: 'Contact Me', href: '#' },
-    ],
-  };
+  const developerLinks = [
+    { name: 'Portfolio', href: '#' },
+    { name: 'GitHub', href: '#' },
+    { name: 'Contact Me', href: '#' },
+  ];
 
   return (
     <footer className="bg-[var(--bg-secondary)] text-[var(--text-muted)] py-12 border-t border-[var(--border-color)]" id="footer">
-      <div className="max-w-7xl mx-auto px-6">
-        
-        {/* --- Top Section: Grid --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-          
-          {/* Brand Column */}
-          <div className="space-y-4">
-            <a href="/" className="flex items-center gap-2 group">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+
+        {/* --- Top Section: Brand (Left) + Developer (Right) --- */}
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10 md:gap-12 mb-10 text-center md:text-left">
+
+          {/* Brand */}
+          <div className="space-y-4 md:w-1/2">
+            <a href="/" className="flex items-center justify-center md:justify-start gap-2 group">
               <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors">
                 <Leaf className="w-6 h-6 text-emerald-500" />
               </div>
-              <span className="text-2xl font-bold text-[var(--text-main)] tracking-tight">
+              <span className="text-3xl font-extrabold text-[var(--text-main)] tracking-tight">
                 Prakriti<span className="text-emerald-500">AI</span>
               </span>
             </a>
-            <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-xs">
+            <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-xs md:max-w-none mx-auto md:mx-0">
               Bridging the gap between ancient Ayurvedic wisdom and modern artificial intelligence.
             </p>
           </div>
 
-          {/* Links Columns */}
-          <div>
-            <h4 className="text-[var(--text-main)] font-semibold mb-6">Product</h4>
-            <ul className="space-y-3">
-              {links.product.map((link) => (
+          {/* Developer */}
+          <div className="flex flex-col items-center md:items-end md:w-1/2">
+            <h4 className="text-[var(--text-main)] text-sm font-semibold mb-4 md:mb-5 mr-7">Developer</h4>
+            <ul className="space-y-2">
+              {developerLinks.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-sm hover:text-emerald-400 transition-colors">
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-[var(--text-main)] font-semibold mb-6">Resources</h4>
-            <ul className="space-y-3">
-              {links.resources.map((link) => (
-                <li key={link.name}>
-                  <a href={link.href} className="text-sm hover:text-emerald-400 transition-colors">
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Developer Column */}
-          <div>
-            <h4 className="text-[var(--text-main)] font-semibold mb-6">Developer</h4>
-            <ul className="space-y-3">
-              {links.developer.map((link) => (
-                <li key={link.name}>
-                  <a href={link.href} className="text-sm hover:text-emerald-400 transition-colors flex items-center gap-2 group">
+                  <a
+                    href={link.href}
+                    className="text-sm hover:text-emerald-400 transition-colors flex items-center justify-center md:justify-end gap-2 group min-h-[44px] px-3 py-2 rounded-lg w-full md:w-auto"
+                  >
                     {link.name}
                     <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </a>
@@ -88,16 +52,14 @@ const Footer = () => {
 
         </div>
 
-        {/* --- Bottom Section: Simple Copyright --- */}
-        <div className="pt-8 border-t border-[var(--border-color)] flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* --- Bottom Row: Copyright + Creator --- */}
+        <div className="pt-8 border-t border-[var(--border-color)] flex flex-col md:flex-row items-center justify-between gap-2 md:gap-3 text-center md:text-left">
           <p className="text-[var(--text-muted)] text-sm">
             &copy; {currentYear} PrakritiAI. All rights reserved.
           </p>
-          
-          <div className="flex items-center gap-6 text-sm text-[var(--text-muted)]">
-            <a href="#" className="hover:text-emerald-400 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-emerald-400 transition-colors">Terms</a>
-          </div>
+          <p className="text-[var(--text-muted)] text-sm">
+            Created by <span className="font-semibold text-[var(--text-main)]">Vedant Patel</span>
+          </p>
         </div>
 
       </div>
