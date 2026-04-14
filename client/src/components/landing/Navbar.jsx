@@ -17,9 +17,10 @@ const Navbar = () => {
   ];
 
   return (
-    <nav
-      className="fixed top-0 left-0 w-full z-50 bg-[var(--bg-primary)] backdrop-blur-md shadow-sm border-b border-[var(--border-color)] py-4 sm:py-5 md:py-6 overflow-x-clip"
-    >
+    <>
+      <nav
+        className="fixed top-0 left-0 w-full z-50 bg-[var(--bg-primary)] backdrop-blur-md shadow-sm border-b border-[var(--border-color)] py-4 sm:py-5 md:py-6 overflow-x-clip"
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center gap-3">
         
         <Link to="/" className="flex items-center gap-3 group isolate">
@@ -108,43 +109,85 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* --- Mobile Menu Dropdown --- */}
+      </nav>
+
+      {/* --- Mobile Menu Overlay Backdrop --- */}
       <div
-        className={`lg:hidden absolute top-full left-0 w-full bg-[var(--bg-primary)] backdrop-blur-xl border-t border-[var(--border-color)] shadow-xl transition-all duration-300 ease-in-out overflow-hidden ${
-          isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+        className={`lg:hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+
+      {/* --- Mobile Menu Drawer --- */}
+      <div
+        className={`lg:hidden fixed top-0 right-0 w-[85vw] max-w-[380px] h-[100dvh] z-[70] bg-[var(--bg-primary)] shadow-[-15px_0_40px_-15px_rgba(0,0,0,0.3)] flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex flex-col p-6 space-y-3">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="flex items-center justify-between p-3 rounded-xl text-lg text-[var(--text-main)] font-medium hover:bg-[var(--bg-secondary)] hover:text-emerald-700 transition-all group"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {link.name}
-              <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-            </a>
-          ))}
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between p-5 border-b border-[var(--border-color)]">
+          <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
+            <img
+              src="/LogoNoBg.png"
+              alt="PrakritiAI"
+              className="w-9 h-9 object-contain scale-[1.6] translate-x-[2px]"
+            />
+            <span className="text-xl font-bold tracking-tight text-[var(--text-main)] ml-1">
+              Prakriti<span className="text-emerald-600">AI</span>
+            </span>
+          </Link>
+          <button
+            className="p-2 text-[var(--text-muted)] hover:text-emerald-600 hover:bg-[var(--bg-secondary)] transition-colors rounded-full"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Drawer Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8 pb-24">
           
-          <div className="h-px w-full bg-[var(--border-color)] my-4"></div>
-          
-          <div className="flex flex-col gap-3">
+          {/* Navigation Links */}
+          <div className="flex flex-col space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2 pl-2">Navigation</p>
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="flex items-center justify-between p-3.5 rounded-xl text-lg text-[var(--text-main)] font-semibold hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-600 transition-all group"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.name}
+                <ArrowRight className="w-5 h-5 text-emerald-500 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+              </a>
+            ))}
+          </div>
+
+          <div className="h-px w-full bg-[var(--border-color)]"></div>
+
+          {/* Account Actions */}
+          <div className="flex flex-col space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2 pl-2">Account Settings</p>
             {isAuthenticated ? (
               <>
+                <div className="px-3 py-3 mb-2 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
+                   <p className="text-xs font-medium text-[var(--text-muted)]">Signed in as</p>
+                   <p className="text-lg font-bold text-[var(--text-main)] truncate">{user?.fullName || 'User'}</p>
+                </div>
                 <button
                   onClick={() => {
                     logout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full text-center py-3.5 rounded-xl text-lg font-semibold text-[var(--text-main)] border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] transition-colors"
+                  className="w-full text-center py-4 rounded-xl text-[17px] font-bold text-[var(--text-main)] border-2 border-[var(--border-color)] hover:bg-[var(--bg-secondary)] hover:border-[var(--text-muted)] transition-all"
                 >
                   Log Out
                 </button>
                 <button
                   onClick={toggleTheme}
-                  className="w-full py-3.5 rounded-xl text-lg font-semibold border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors flex items-center justify-center gap-2"
-                  aria-label="Toggle theme"
+                  className="w-full py-4 rounded-xl text-[17px] font-bold border-2 border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-secondary)] hover:border-[var(--text-muted)] transition-all flex items-center justify-center gap-2"
                 >
                   {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                   {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
@@ -155,22 +198,21 @@ const Navbar = () => {
                 <Link
                   to="/auth/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full text-center py-3.5 rounded-xl text-lg font-semibold text-[var(--text-main)] border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] transition-colors"
+                  className="w-full text-center py-4 rounded-xl text-[17px] font-bold text-[var(--text-main)] border-2 border-[var(--border-color)] hover:bg-[var(--bg-secondary)] hover:border-[var(--text-muted)] transition-all"
                 >
                   Log In
                 </Link>
                 <Link
                   to="/auth/signup"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full text-center py-3.5 rounded-xl text-lg font-semibold bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full text-center py-4 rounded-xl text-[17px] font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-700 hover:shadow-emerald-600/40 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-5 h-5" />
                   Sign Up
                 </Link>
                 <button
                   onClick={toggleTheme}
-                  className="w-full py-3.5 rounded-xl text-lg font-semibold border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-secondary)] transition-colors flex items-center justify-center gap-2"
-                  aria-label="Toggle theme"
+                  className="w-full py-4 mt-2 rounded-xl text-[17px] font-bold border-2 border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-secondary)] hover:border-[var(--text-muted)] transition-all flex items-center justify-center gap-2"
                 >
                   {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                   {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
@@ -180,7 +222,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-    </nav>
+    </>
   );
 };
 

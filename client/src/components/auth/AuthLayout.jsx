@@ -17,16 +17,16 @@ const AuthLayout = ({ title, subtitle, children }) => {
 						<div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-950/20 to-emerald-950/50" />
 					</div>
 
-				<div className="relative z-10">
-					<Link to="/" className="flex items-center gap-2 group w-fit">
-						<div className="flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl group-hover:bg-white/20 transition-colors">
-							<Leaf className="w-6 h-6 text-emerald-400" />
-						</div>
-						<span className="text-2xl font-bold tracking-tight">
-							Prakriti<span className="text-emerald-400">AI</span>
-						</span>
-					</Link>
-				</div>
+					<div className="relative z-10">
+						<Link to="/" className="flex items-center gap-2 group w-fit">
+							<div className="flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl group-hover:bg-white/20 transition-colors">
+								<Leaf className="w-6 h-6 text-emerald-400" />
+							</div>
+							<span className="text-2xl font-bold tracking-tight">
+								Prakriti<span className="text-emerald-400">AI</span>
+							</span>
+						</Link>
+					</div>
 
 					<div className="relative z-10 max-w-md">
 						<div className="mt-7 grid grid-cols-2 gap-4">
@@ -108,13 +108,13 @@ const AuthLayout = ({ title, subtitle, children }) => {
 				</div>
 
 				<div className="w-full lg:w-1/2 min-h-[680px] flex items-center justify-center p-6 sm:p-10 relative">
-				<Link
-					to="/"
-					className="absolute top-6 left-6 flex items-center gap-2 text-[var(--text-muted)] hover:text-emerald-600 transition-colors lg:hidden"
-				>
-					<ArrowLeft className="w-4 h-4" />
-					Back to Home
-				</Link>
+					<Link
+						to="/"
+						className="absolute top-6 left-6 flex items-center gap-2 text-[var(--text-muted)] hover:text-emerald-600 transition-colors lg:hidden"
+					>
+						<ArrowLeft className="w-4 h-4" />
+						Back to Home
+					</Link>
 
 					<AnimatePresence mode="wait">
 						<motion.div
