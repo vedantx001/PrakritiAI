@@ -28,17 +28,45 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
-const clientUrl = (process.env.CLIENT_URL || "").trim().replace(/\/+$/, "");
+const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
+
+const isProduction = process.env.NODE_ENV === "production";
+
+// Production should be locked down to the deployed frontend origin(s).
+// Development should allow localhost so local work keeps functioning even if
+// CLIENT_URL is set to a production domain.
+const envOrigins = [
+  ...(process.env.CLIENT_URLS
+    ? process.env.CLIENT_URLS.split(",").map((entry) => normalizeOrigin(entry)).filter(Boolean)
+    : []),
+  ...(process.env.CLIENT_URL ? [normalizeOrigin(process.env.CLIENT_URL)] : []),
+].filter(Boolean);
+
+const devFallbackOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
+const allowedOrigins = isProduction
+  ? envOrigins
+  : Array.from(new Set([...devFallbackOrigins, ...envOrigins]));
 
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow non-browser clients (no Origin header).
     if (!origin) return callback(null, true);
 
-    if (!clientUrl) return callback(null, false);
+    // In dev, if nothing is configured, don't block all browser traffic.
+    if (!isProduction && allowedOrigins.length === 0) {
+      return callback(null, true);
+    }
 
-    const normalizedOrigin = String(origin).trim().replace(/\/+$/, "");
-    return callback(null, normalizedOrigin === clientUrl);
+    const normalizedOrigin = normalizeOrigin(origin);
+    return callback(null, allowedOrigins.includes(normalizedOrigin));
   },
   credentials: true,
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],

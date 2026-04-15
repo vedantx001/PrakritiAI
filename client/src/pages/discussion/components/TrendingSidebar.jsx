@@ -7,7 +7,13 @@ import wisdomData from '../../../data/wisdom.json';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const buildUrl = (path) => `${API_BASE_URL}${path}`;
+const normalizedBaseUrl = String(API_BASE_URL || '').trim().replace(/\/+$/, '');
+
+const buildUrl = (path) => {
+  const normalizedPath = String(path || '');
+  if (!normalizedBaseUrl) return normalizedPath;
+  return `${normalizedBaseUrl}${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`;
+};
 
 const readJsonSafely = async (response) => {
   try {
