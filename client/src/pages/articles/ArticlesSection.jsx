@@ -1,7 +1,7 @@
 // Purpose: Full separate articles section shared by admin and user; admin can publish updates.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Moon, Sun, Menu, PenLine } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ArticleLayout from '../../components/articles/ArticleLayout';
 import ArticleFormShell from '../../components/articles/admin/ArticleFormShell';
@@ -129,6 +129,7 @@ export default function ArticlesSection() {
   const [articleTree, setArticleTree] = useState([]);
   const [selected, setSelected] = useState({ seriesId: '', chapterId: '', topicId: '' });
   const [loading, setLoading] = useState(true);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [draft, setDraft] = useState({ ...EMPTY_DRAFT });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('info');
@@ -911,23 +912,31 @@ export default function ArticlesSection() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)]">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] w-full flex flex-col">
       <ThemeStyles />
 
       <header className="sticky top-0 z-30 bg-[var(--bg-card)]/90 backdrop-blur border-b border-[var(--border-color)]">
-        <div className="w-full px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="w-full px-4 sm:px-6 h-14 md:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setIsMobileDrawerOpen(true)}
+              className="p-2 -ml-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] transition-colors lg:hidden"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
             <button
               type="button"
               onClick={() => navigate(backPath)}
-              className="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] transition-colors"
+              className="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] transition-colors hidden lg:block"
               aria-label="Go back"
             >
               <ArrowLeft size={18} />
             </button>
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold">Articles</h1>
-              <p className="text-xs md:text-sm text-[var(--text-muted)]">
+            <div className="min-w-0 pr-2">
+              <h1 className="text-lg md:text-xl font-bold truncate">Articles</h1>
+              <p className="text-xs text-[var(--text-muted)] truncate hidden sm:block">
                 {isAdmin
                   ? 'Create, update and publish structured article content.'
                   : 'Read structured article content curated by admin.'}
@@ -935,7 +944,7 @@ export default function ArticlesSection() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
           <button
             type="button"
             onClick={toggleTheme}
@@ -949,7 +958,7 @@ export default function ArticlesSection() {
             <button
             type="button"
             onClick={openComposer}
-            className="px-4 py-2 rounded-lg bg-[var(--btn-primary)] text-[var(--btn-text)] text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="hidden md:flex px-4 py-2 rounded-lg bg-[var(--btn-primary)] text-[var(--btn-text)] text-sm font-semibold hover:opacity-90 transition-opacity"
             >
             {isAdmin ? 'Publish Article' : 'Contribute'}
             </button>
@@ -958,13 +967,15 @@ export default function ArticlesSection() {
         </div>
       </header>
 
-        <main className="w-full h-[calc(100vh-4rem)] min-h-0 overflow-hidden py-4 md:py-8 pr-4 md:pr-8">
+        <main className="w-full h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] min-h-0 overflow-hidden md:p-4 lg:p-6 p-0">
         {loading ? (
           <ArticleLoadingState />
         ) : articleTree.length === 0 ? (
           <ArticleEmptyState message="No published articles yet." />
         ) : (
           <ArticleLayout
+            isMobileDrawerOpen={isMobileDrawerOpen}
+            onCloseDrawer={() => setIsMobileDrawerOpen(false)}
             sidebar={
               <ArticleTree
                 articleTree={articleTree}
@@ -976,7 +987,7 @@ export default function ArticlesSection() {
               />
             }
           >
-            <div className="p-6 md:p-8 h-full min-h-0">
+            <div className="p-4 sm:p-6 h-full min-h-0 border-x-0 border-y-0 lg:border lg:border-[var(--border-color)] lg:rounded-r-2xl bg-[var(--bg-primary)]">
               <ArticleContentSwitcher
                 topicSlug={topic?.slug || ''}
                 fallbackTopic={topic}
@@ -994,11 +1005,24 @@ export default function ArticlesSection() {
                   setIsCommentsOpen(true);
                 }}
               />
-              <TopicPagination previousTopic={previousTopic} nextTopic={nextTopic} onTopicChange={handleTopicChange} />
+              <div className="mt-8">
+                <TopicPagination previousTopic={previousTopic} nextTopic={nextTopic} onTopicChange={handleTopicChange} />
+              </div>
             </div>
           </ArticleLayout>
         )}
       </main>
+
+      {(isAdmin || isUserPOV) && (
+        <button
+          type="button"
+          onClick={openComposer}
+          className="md:hidden fixed bottom-6 right-6 z-40 p-4 rounded-full bg-[var(--btn-primary)] text-[var(--btn-text)] shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center"
+          aria-label={isAdmin ? 'Publish Article' : 'Contribute'}
+        >
+          <PenLine size={24} />
+        </button>
+      )}
 
       <ArticleCommentsModal
         isOpen={isCommentsOpen}
@@ -1014,9 +1038,9 @@ export default function ArticlesSection() {
       />
 
       {isPublishOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 bg-black/35 backdrop-blur-sm">
-          <div className="absolute inset-0" onClick={closeComposer} aria-hidden="true" />
-          <div className="relative w-full max-w-2xl">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center md:p-4 bg-[var(--bg-primary)] md:bg-black/50 md:backdrop-blur-sm">
+          <div className="hidden md:block absolute inset-0" onClick={closeComposer} aria-hidden="true" />
+          <div className="relative w-full h-full md:h-auto md:max-w-2xl bg-[var(--bg-card)] md:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
             <ArticleFormShell
               draft={draft}
               onDraftChange={handleDraftChange}
@@ -1029,7 +1053,7 @@ export default function ArticlesSection() {
               topicOptions={topicOptions}
               mode={isAdmin ? 'publish' : 'contribute'}
               actionLabel={isAdmin ? 'Publish Article' : 'Contribute'}
-              title={isAdmin ? 'Create & Publish Article' : 'Contribute to Articles'}
+              title={isAdmin ? 'Create & Publish Article' : 'Contribute'}
               description={isAdmin ? 'Select existing or create new series, chapter, and topic.' : 'Share improvements or new content for admin review.'}
             />
           </div>

@@ -38,8 +38,8 @@ const ArticleFormShell = ({
 	const typedUnknownChapter = isContributeMode && chapterTitle && !chapterOptions.includes(chapterTitle);
 
 	return (
-		<section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[var(--shadow-soft)] max-h-[80vh] overflow-hidden flex flex-col">
-			<div className="p-5 md:p-6 border-b border-[var(--border-color)]">
+		<section className="bg-[var(--bg-card)] md:border border-[var(--border-color)] rounded-none md:rounded-2xl shadow-none md:shadow-[var(--shadow-soft)] h-full md:h-auto md:max-h-[85vh] overflow-hidden flex flex-col relative w-full">
+			<div className="sticky top-0 z-10 bg-[var(--bg-card)] px-4 py-4 md:p-6 border-b border-[var(--border-color)]">
 				<div className="flex items-start justify-between gap-4">
 					<div className="min-w-0">
 						<h2 className="text-lg md:text-xl font-bold text-[var(--text-main)]">{title}</h2>
@@ -103,7 +103,7 @@ const ArticleFormShell = ({
 				</div>
 			</div>
 
-			<div className="px-5 md:px-6 py-4 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/40">
+			<div className="sticky bottom-0 z-10 w-full px-4 md:px-6 py-4 border-t border-[var(--border-color)] bg-[var(--bg-card)] md:bg-[var(--bg-secondary)]/40">
 				<PublishPanel
 					onPublish={onPublish}
 					disabled={!canSubmit}
