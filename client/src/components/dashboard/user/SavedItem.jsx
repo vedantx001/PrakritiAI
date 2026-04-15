@@ -14,13 +14,13 @@ const SavedItem = ({ type, title, date, onClick }) => (
       onClick ? 'cursor-pointer' : ''
     }`}
   >
-    <div className="flex items-center gap-4">
-      <div className={`p-2 rounded-lg ${type === 'Article' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30' : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30'}`}>
-        {type === 'Article' ? <BookOpen size={18} /> : <MessageCircle size={18} />}
+    <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
+      <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${type === 'Article' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30' : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30'}`}>
+        {type === 'Article' ? <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" /> : <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" /> }
       </div>
-      <div>
-        <h4 className="text-sm font-semibold text-[var(--text-main)] group-hover:text-[var(--text-brand)] transition-colors">{title}</h4>
-        <p className="text-xs text-[var(--text-muted)]">{type} • {date}</p>
+      <div className="min-w-0 truncate">
+        <h4 className="text-xs sm:text-sm font-semibold text-[var(--text-main)] group-hover:text-[var(--text-brand)] transition-colors truncate">{title}</h4>
+        <p className="text-[10px] sm:text-xs text-[var(--text-muted)] truncate">{type} • {date}</p>
       </div>
     </div>
     <div className="opacity-0 group-hover:opacity-100 transition-opacity">

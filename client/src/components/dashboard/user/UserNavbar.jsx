@@ -16,15 +16,15 @@ const UserNavbar = ({ toggleSidebar, isDarkMode, toggleTheme, onProfileClick }) 
   }), [displayName, user?.gender]);
 
   return (
-    <header className="h-16 sticky top-0 z-40 bg-[var(--bg-card)]/80 backdrop-blur-md border-b border-[var(--border-color)] flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
+    <header className="h-14 sm:h-16 sticky top-0 z-40 bg-[var(--bg-card)]/80 backdrop-blur-md border-b border-[var(--border-color)] flex items-center justify-between px-3 sm:px-6">
+      <div className="flex items-center gap-2 sm:gap-4">
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] transition-colors"
+          className="p-1.5 sm:p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] transition-colors"
         >
-          <Menu size={20} />
+          <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
-        <h2 className="text-xl font-bold text-[var(--text-main)]">User Dashboard</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-[var(--text-main)] truncate max-w-[150px] sm:max-w-none">User Dashboard</h2>
       </div>
 
       <div className="flex items-center gap-4">
@@ -40,7 +40,7 @@ const UserNavbar = ({ toggleSidebar, isDarkMode, toggleTheme, onProfileClick }) 
           </span>
         </div>
 
-        <div className="relative group">
+        <div className="relative group hidden sm:block">
           <button className="p-2 rounded-full text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-brand)] transition-colors relative">
             <Bell size={20} />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[var(--bg-card)]"></span>
@@ -50,19 +50,19 @@ const UserNavbar = ({ toggleSidebar, isDarkMode, toggleTheme, onProfileClick }) 
           </span>
         </div>
 
-        <div className="pl-4 border-l border-[var(--border-color)]">
+        <div className="pl-2 sm:pl-4 border-l border-[var(--border-color)]">
           <button
             type="button"
             onClick={onProfileClick}
-            className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-secondary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-card)]"
+            className="flex items-center gap-2 sm:gap-3 rounded-xl px-1 sm:px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-secondary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-card)]"
             aria-label="User profile"
           >
-            <div className="hidden sm:flex flex-col leading-tight">
+            <div className="hidden lg:flex flex-col leading-tight">
               <span className="text-sm font-semibold text-[var(--text-main)]">{displayName}</span>
               <span className="text-xs text-[var(--text-muted)] break-all">{displayEmail}</span>
             </div>
 
-            <div className="h-10 w-10 rounded-full bg-[var(--bg-secondary)] ring-1 ring-[var(--border-color)] shadow-sm overflow-hidden flex items-center justify-center">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-[var(--bg-secondary)] ring-1 ring-[var(--border-color)] shadow-sm overflow-hidden flex items-center justify-center shrink-0">
               {!avatarFailed && avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -73,7 +73,7 @@ const UserNavbar = ({ toggleSidebar, isDarkMode, toggleTheme, onProfileClick }) 
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-[var(--text-brand)]">
-                  <User size={20} />
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               )}
             </div>

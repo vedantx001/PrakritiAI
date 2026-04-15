@@ -270,28 +270,28 @@ export default function UserOverview({ healthStatsData, onSelectTab }) {
   }, [aiHistory, savedLibrary]);
 
   return (
-    <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[var(--bg-primary)]">
-    <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <main className="flex-1 px-4 py-6 sm:p-6 md:p-8 overflow-y-auto bg-[var(--bg-primary)] relative w-full">
+    <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-2 md:gap-4">
       <div>
-        <h1 className="text-3xl font-bold text-[var(--text-main)] mb-1">Hello, {user?.name || 'there'}! 👋</h1>
-        <p className="text-[var(--text-muted)]">Here's your daily health overview.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-main)] mb-1">Hello, {user?.name || 'there'}! 👋</h1>
+        <p className="text-sm sm:text-base text-[var(--text-muted)]">Here's your daily health overview.</p>
       </div>
-      <div className="text-right hidden md:block">
-        <p className="text-sm font-medium text-[var(--text-brand)]">Last check-up: {healthSummary?.lastAnalysis ? formatRelative(healthSummary.lastAnalysis) : '—'}</p>
+      <div className="text-left md:text-right text-xs sm:text-sm">
+        <p className="font-medium text-[var(--text-brand)]">Last check-up: {healthSummary?.lastAnalysis ? formatRelative(healthSummary.lastAnalysis) : '—'}</p>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 lg:mb-10 w-full">
       {statsToRender.map((stat) => (
         <HealthStatCard key={stat.title} {...stat} />
       ))}
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full">
+      <div className="lg:col-span-2 space-y-6 lg:space-y-8">
         <div>
-          <h3 className="text-lg font-bold text-[var(--text-main)] mb-4">What would you like to do?</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <h3 className="text-base sm:text-lg font-bold text-[var(--text-main)] mb-3 sm:mb-4">What would you like to do?</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <ActionCard
               title="Analyze Symptoms"
               desc="Enter your symptoms to get a preliminary AI analysis."
@@ -316,9 +316,9 @@ export default function UserOverview({ healthStatsData, onSelectTab }) {
           </div>
         </div>
 
-        <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)] p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-[var(--text-main)]">Recent History</h3>
+        <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)] p-4 sm:p-6 w-full">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-bold text-[var(--text-main)]">Recent History</h3>
             <button
               type="button"
               onClick={() => (onSelectTab ? onSelectTab('History') : navigate('/dashboard/user/history'))}
@@ -327,46 +327,48 @@ export default function UserOverview({ healthStatsData, onSelectTab }) {
               View All
             </button>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4 w-full">
             {recentHistoryItems.map((entry, idx) => (
                 <div
                   key={entry.key || idx}
-                  className="flex items-start gap-4 p-4 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--text-brand)] transition-colors"
+                  className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--text-brand)] transition-colors w-full"
                 >
-                  <div className={`bg-[var(--bg-card)] p-2 rounded-lg ${entry.iconColorClass || (idx === 0 ? 'text-[var(--text-brand)]' : 'text-blue-500')} border border-[var(--border-color)]`}>
-                    {entry.icon ? <entry.icon size={20} /> : idx === 0 ? <Stethoscope size={20} /> : <BookOpen size={20} />}
+                  <div className={`bg-[var(--bg-card)] p-1.5 sm:p-2 rounded-lg shrink-0 ${entry.iconColorClass || (idx === 0 ? 'text-[var(--text-brand)]' : 'text-blue-500')} border border-[var(--border-color)]`}>
+                    {entry.icon ? <entry.icon className="w-4 h-4 sm:w-5 sm:h-5" /> : idx === 0 ? <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" /> : <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />}
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-[var(--text-main)]">{entry.title}</h4>
-                    <p className="text-sm text-[var(--text-muted)] mt-1">{entry.description}</p>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm sm:text-base font-semibold text-[var(--text-main)] truncate">{entry.title}</h4>
+                    <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5 sm:mt-1 line-clamp-2">{entry.description}</p>
                   </div>
-                  <span className="text-xs text-[var(--text-muted)] font-medium">{entry.time}</span>
+                  <div className="shrink-0 pl-1 sm:pl-2 pt-1">
+                    <span className="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium whitespace-nowrap">{entry.time}</span>
+                  </div>
                 </div>
               ))}
           </div>
         </div>
       </div>
 
-      <div className="space-y-8">
-        <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)]">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-[var(--text-main)]">Saved & Liked</h3>
-            <Heart size={18} className="text-[var(--text-brand)] fill-[var(--text-brand)]" />
+      <div className="space-y-6 lg:space-y-8 w-full mt-2 lg:mt-0">
+        <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)] w-full">
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
+            <h3 className="text-base sm:text-lg font-bold text-[var(--text-main)]">Saved & Liked</h3>
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--text-brand)] fill-[var(--text-brand)]" />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 sm:space-y-2">
             {savedItemsToRender.map((item) => (
               <SavedItem key={item.key} type={item.type} title={item.title} date={item.date} onClick={item.onClick} />
             ))}
           </div>
           <button
             onClick={() => (onSelectTab ? onSelectTab('Saved') : navigate('/dashboard/user/saved'))}
-            className="w-full mt-4 py-2 text-sm font-medium text-[var(--text-muted)] border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] transition-colors"
+            className="w-full mt-3 sm:mt-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-[var(--text-muted)] border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] transition-colors"
           >
             View All Library
           </button>
         </div>
 
-        <div className="bg-gradient-to-br from-[var(--text-brand)] to-teal-700 p-6 rounded-2xl text-white shadow-lg relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[var(--text-brand)] to-teal-700 p-5 sm:p-6 rounded-2xl text-white shadow-lg relative overflow-hidden w-full">
           <div className="relative z-10">
             <h3 className="font-bold text-lg mb-2">Have knowledge to share?</h3>
             <p className="text-emerald-50 text-sm mb-4">Contribute to our articles section. Help the community grow.</p>
