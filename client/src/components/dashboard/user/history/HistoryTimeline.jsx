@@ -28,9 +28,9 @@ export default function HistoryTimeline({ data, onViewDetails }) {
 
   return (
     <div className="relative">
-      <div className="absolute left-1.5 sm:left-[22px] top-8 bottom-8 w-px bg-[var(--border-color)]"></div>
+      <div className="absolute left-[7px] md:left-[7px] lg:left-[22px] top-10 md:top-12 lg:top-8 bottom-8 md:bottom-12 lg:bottom-8 w-px bg-[var(--border-color)] z-0 hidden lg:block"></div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 md:space-y-5 lg:space-y-4">
         {items.map((item) => (
           <HistoryCard key={item.id} item={item} onViewDetails={onViewDetails} />
         ))}

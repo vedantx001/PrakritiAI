@@ -167,15 +167,15 @@ export default function HealthHistory() {
   }, [historyItems, searchQuery, filter]);
 
   return (
-    <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[var(--bg-primary)]">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-          <div>
-            <div className="flex items-center gap-3 mb-2 text-[var(--text-brand)]">
-              <Activity size={28} strokeWidth={2.5} />
-              <h1 className="text-3xl font-extrabold text-[var(--text-main)] tracking-tight">My Health History</h1>
+    <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden bg-[var(--bg-primary)]">
+      <div className="max-w-6xl mx-auto w-full">
+        <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 md:gap-6 mb-6 md:mb-10 w-full">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-3 mb-1 md:mb-2 text-[var(--text-brand)]">
+              <Activity strokeWidth={2.5} className="w-6 h-6 md:w-7 md:h-7 lg:w-7 lg:h-7" />
+              <h1 className="text-2xl md:text-3xl lg:text-3xl font-extrabold text-[var(--text-main)] tracking-tight">My Health History</h1>
             </div>
-            <p className="text-[var(--text-muted)] text-base max-w-xl leading-relaxed">
+            <p className="text-sm md:text-base lg:text-base text-[var(--text-muted)] max-w-xl leading-relaxed mt-1 md:mt-0">
               Track your past symptom analyses and monitor your health insights over time.
             </p>
           </div>

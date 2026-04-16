@@ -72,13 +72,13 @@ export default function HistorySummaryCards({ data, summary }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 lg:mb-10 w-full">
       {cards.map((card) => (
         <div
           key={card.title}
-          className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center gap-5 group cursor-default"
+          className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center gap-4 lg:gap-5 group cursor-default w-full"
         >
-          <div className={`p-4 rounded-xl ${card.bg} ${card.color} group-hover:scale-110 transition-transform duration-300`}>
+          <div className={`p-3 md:p-4 rounded-xl shrink-0 ${card.bg} ${card.color} group-hover:scale-110 transition-transform duration-300`}>
             <card.icon size={24} strokeWidth={2} />
           </div>
           <div>
