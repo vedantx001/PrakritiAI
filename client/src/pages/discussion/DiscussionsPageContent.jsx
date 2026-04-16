@@ -327,7 +327,7 @@ export default function DiscussionsPageContent() {
           onOpenModal={() => setIsModalOpen(true)}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-8 pb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_240px] md:grid-cols-[1fr_250px] lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-6 sm:gap-8 pb-12">
           <main className="min-w-0 w-full">
             <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 custom-scrollbar hide-scrollbar-on-mobile sm:hidden">
               <button className="flex items-center gap-1 bg-[var(--bg-secondary)] text-[var(--text-main)] px-4 py-1.5 rounded-full text-sm font-medium border border-[var(--border-color)] whitespace-nowrap">
@@ -429,7 +429,7 @@ export default function DiscussionsPageContent() {
             </AnimatePresence>
           </main>
 
-          <div className="hidden lg:block">
+          <div className="mt-8 md:mt-0">
             <TrendingSidebar onSelectTag={(tag) => setSearchTerm(String(tag || ''))} />
           </div>
         </div>

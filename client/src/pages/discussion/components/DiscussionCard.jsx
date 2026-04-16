@@ -186,7 +186,7 @@ function DiscussionCard({
             type="button"
             onClick={() => onShare?.(post)}
             disabled={!onShare}
-            className="flex items-center space-x-1.5 text-[var(--text-muted)] hover:text-emerald-500 transition-colors group hidden sm:flex disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1.5 text-[var(--text-muted)] hover:text-emerald-500 transition-colors group disabled:opacity-60 disabled:cursor-not-allowed"
             aria-label="Share"
           >
             <div className="p-1.5 rounded-full group-hover:bg-[var(--bg-secondary)] transition-colors">

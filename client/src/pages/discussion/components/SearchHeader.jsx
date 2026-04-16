@@ -19,7 +19,7 @@ export default function SearchHeader({ searchTerm, setSearchTerm, onOpenModal })
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <div className="relative w-full sm:w-64 md:w-80 group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-[var(--text-brand)] transition-colors">
               <Search className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -35,18 +35,10 @@ export default function SearchHeader({ searchTerm, setSearchTerm, onOpenModal })
 
           <button
             onClick={onOpenModal}
-            className="hidden sm:flex items-center justify-center gap-2 bg-[var(--btn-primary)] text-[var(--btn-text)] px-4 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--text-brand)]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--btn-primary)] text-[var(--btn-text)] px-4 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--text-brand)]"
           >
             <Plus className="w-5 h-5" />
             <span>New Post</span>
-          </button>
-
-          <button
-            onClick={onOpenModal}
-            className="sm:hidden p-2.5 bg-[var(--btn-primary)] text-[var(--btn-text)] rounded-xl hover:opacity-90 transition-opacity"
-            aria-label="New Post"
-          >
-            <Plus className="w-5 h-5" />
           </button>
         </div>
       </div>
