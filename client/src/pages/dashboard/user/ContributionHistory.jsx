@@ -12,6 +12,7 @@ import {
 
 import { getMyContributions } from '../../../services/articleService';
 import { useAuth } from '../../../context/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const stripHtml = (html) =>
   String(html || '')
@@ -132,6 +133,7 @@ export default function ContributionHistory() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { token, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let isMounted = true;
@@ -191,7 +193,10 @@ export default function ContributionHistory() {
             Track the status of your submitted articles and edits.
           </p>
         </div>
-        <button className="bg-[var(--btn-primary)] text-[var(--btn-text)] px-4 py-3 sm:py-2 rounded-lg font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center sm:justify-start gap-2 w-full sm:w-auto">
+        <button 
+          onClick={() => navigate('/articles')}
+          className="bg-[var(--btn-primary)] text-[var(--btn-text)] px-4 py-3 sm:py-2 rounded-lg font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center sm:justify-start gap-2 w-full sm:w-auto"
+        >
           <PlusCircle size={18} />
           <span className="inline">New Contribution</span>
         </button>
@@ -303,17 +308,22 @@ export default function ContributionHistory() {
                     )}
                   </div>
 
-                  <div className="md:text-right flex flex-col md:flex-col lg:flex-col items-stretch md:items-end lg:items-end justify-between border-t md:border-t-0 lg:border-t-0 border-[var(--border-color)] pt-4 md:pt-0 lg:pt-0 mt-4 md:mt-0 lg:mt-0 gap-3 md:gap-0 lg:gap-0 shrink-0 lg:w-40">
-                    <button className="w-full md:w-auto lg:w-auto text-sm font-medium text-[var(--text-main)] md:text-[var(--text-brand)] lg:text-[var(--text-brand)] bg-[var(--bg-secondary)] md:bg-transparent lg:bg-transparent hover:bg-[var(--border-color)] md:hover:bg-transparent lg:hover:bg-transparent border border-[var(--border-color)] md:border-transparent lg:border-transparent rounded-xl md:rounded-none lg:rounded-none py-2.5 md:py-0 lg:py-0 md:hover:underline lg:hover:underline underline-offset-4 transition-all">
-                      View Details
-                    </button>
-                    {cont.status === 'Approved' && (
+                  <div className="md:text-right flex flex-col items-stretch md:items-end justify-start border-t md:border-t-0 border-[var(--border-color)] pt-4 md:pt-0 mt-4 md:mt-0 shrink-0 lg:w-40">
+                    {cont.status === 'Approved' && cont.liveUrl ? (
                       <a
-                        href={cont.liveUrl || '#'}
-                        className="w-full md:w-auto lg:w-auto justify-center md:justify-end lg:justify-end text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] md:mt-2 lg:mt-2 flex items-center gap-1 transition-colors py-2 md:py-0 lg:py-0 border border-[var(--border-color)] md:border-transparent lg:border-transparent rounded-xl md:rounded-none lg:rounded-none bg-[var(--bg-secondary)] md:bg-transparent lg:bg-transparent"
+                        href={cont.liveUrl}
+                        className="w-full md:w-auto lg:w-auto text-sm font-medium text-[var(--text-main)] md:text-[var(--text-brand)] lg:text-[var(--text-brand)] bg-[var(--bg-secondary)] md:bg-transparent lg:bg-transparent hover:bg-[var(--border-color)] md:hover:bg-transparent lg:hover:bg-transparent border border-[var(--border-color)] md:border-transparent lg:border-transparent rounded-xl md:rounded-none lg:rounded-none py-2.5 md:py-0 lg:py-0 md:hover:underline lg:hover:underline underline-offset-4 transition-all flex items-center justify-center md:justify-end gap-1.5 group/btn"
                       >
-                        View Live Article <ChevronRight size={12} />
+                        View Live Article
+                        <ChevronRight size={14} className="md:hidden group-hover/btn:translate-x-1 transition-transform" />
                       </a>
+                    ) : (
+                      <span
+                        title={cont.status !== 'Approved' ? 'Article is not yet approved' : 'Link unavailable'}
+                        className="w-full md:w-auto lg:w-auto text-sm font-medium text-[var(--text-muted)] bg-[var(--bg-secondary)] md:bg-transparent lg:bg-transparent border border-[var(--border-color)] md:border-transparent lg:border-transparent rounded-xl md:rounded-none lg:rounded-none py-2.5 md:py-0 lg:py-0 transition-all opacity-60 cursor-not-allowed flex items-center justify-center md:justify-end gap-1.5"
+                      >
+                        View Live Article
+                      </span>
                     )}
                   </div>
                 </div>
