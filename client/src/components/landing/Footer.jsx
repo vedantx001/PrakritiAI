@@ -5,9 +5,8 @@ const Footer = () => {
   const currentYear = 2026;
 
   const developerLinks = [
-    { name: 'Portfolio', href: '#' },
-    { name: 'GitHub', href: '#' },
-    { name: 'Contact Me', href: '#' },
+    { name: 'GitHub', href: 'https://github.com/vedantx001' },
+    { name: 'LinkedIn', href: 'https://www.linkedin.com/in/vedant-patell' },
   ];
 
   return (

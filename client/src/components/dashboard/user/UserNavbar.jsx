@@ -40,16 +40,6 @@ const UserNavbar = ({ toggleSidebar, isDarkMode, toggleTheme, onProfileClick }) 
           </span>
         </div>
 
-        <div className="relative group hidden sm:block">
-          <button className="p-2 rounded-full text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-brand)] transition-colors relative">
-            <Bell size={20} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[var(--bg-card)]"></span>
-          </button>
-          <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-main)] shadow-sm opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-100">
-            Notifications
-          </span>
-        </div>
-
         <div className="pl-2 sm:pl-4 border-l border-[var(--border-color)]">
           <button
             type="button"
