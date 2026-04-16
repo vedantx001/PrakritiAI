@@ -183,27 +183,27 @@ export default function ContributionHistory() {
   }, [activeTab, searchQuery, contributions]);
 
   return (
-    <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[var(--bg-primary)]">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+    <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden bg-[var(--bg-primary)]">
+      <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-4 lg:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-main)]">My Contributions</h1>
-          <p className="text-[var(--text-muted)] text-sm mt-1">
+          <h1 className="text-2xl md:text-2xl lg:text-2xl font-bold tracking-tight text-[var(--text-main)]">My Contributions</h1>
+          <p className="text-sm lg:text-sm text-[var(--text-muted)] mt-1">
             Track the status of your submitted articles and edits.
           </p>
         </div>
-        <button className="bg-[var(--btn-primary)] text-[var(--btn-text)] px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2">
+        <button className="bg-[var(--btn-primary)] text-[var(--btn-text)] px-4 py-3 sm:py-2 rounded-lg font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center sm:justify-start gap-2 w-full sm:w-auto">
           <PlusCircle size={18} />
-          <span className="hidden sm:inline">New Contribution</span>
+          <span className="inline">New Contribution</span>
         </button>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div className="flex space-x-1 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)]">
+      <div className="flex flex-col md:flex-row lg:flex-row justify-between items-start md:items-center lg:items-center gap-4 lg:gap-4 mb-6 md:mb-8 lg:mb-8 w-full">
+        <div className="flex overflow-x-auto w-full md:w-auto gap-2 lg:gap-0 lg:space-x-1 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)]">
           {['All', 'Pending', 'Approved', 'Rejected'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`shrink-0 whitespace-nowrap px-4 py-1.5 lg:py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 activeTab === tab
                   ? 'bg-[var(--bg-card)] text-[var(--text-main)] shadow-sm border border-[var(--border-color)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
@@ -214,7 +214,7 @@ export default function ContributionHistory() {
           ))}
         </div>
 
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full md:w-64 lg:w-64 shrink-0">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
             size={18}
@@ -246,37 +246,39 @@ export default function ContributionHistory() {
             return (
               <div
                 key={cont.id || cont.displayId}
-                className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200"
+                className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-5 lg:p-5 shadow-sm hover:shadow-md transition-shadow duration-200 w-full"
               >
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
+                <div className="flex flex-col md:flex-row lg:flex-row md:items-start lg:items-start justify-between gap-4 md:gap-5 lg:gap-4 w-full">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-2 lg:mb-3">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusConfig.bg} ${statusConfig.color} ${statusConfig.border}`}
+                        className={`inline-flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusConfig.bg} ${statusConfig.color} ${statusConfig.border}`}
                       >
                         <StatusIcon size={14} />
                         {cont.status}
                       </span>
-                      <span className="text-xs text-[var(--text-muted)] font-mono">{cont.displayId}</span>
-                      <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
-                        •{' '}
-                        {new Date(cont.submittedAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs text-[var(--text-muted)] font-mono">{cont.displayId}</span>
+                        <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
+                          <span className="hidden sm:inline">•</span>
+                          {new Date(cont.submittedAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center text-sm font-medium text-[var(--text-muted)] mb-1">
-                      <span className="hover:text-[var(--text-main)] cursor-pointer">{cont.series}</span>
-                      <ChevronRight size={14} className="mx-1.5 opacity-50" />
-                      <span className="hover:text-[var(--text-main)] cursor-pointer">{cont.chapter}</span>
+                    <div className="flex flex-wrap items-center text-xs sm:text-sm lg:text-sm font-medium text-[var(--text-muted)] mb-1">
+                      <span className="hover:text-[var(--text-main)] cursor-pointer truncate lg:whitespace-normal">{cont.series}</span>
+                      <ChevronRight size={14} className="mx-1 min-w-[14px] lg:mx-1.5 opacity-50" />
+                      <span className="hover:text-[var(--text-main)] cursor-pointer truncate lg:whitespace-normal">{cont.chapter}</span>
                     </div>
 
-                    <h3 className="text-lg font-bold text-[var(--text-main)] mb-2 flex items-center gap-2">
-                      {cont.topic}
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)]">
+                    <h3 className="text-base sm:text-lg lg:text-lg font-bold text-[var(--text-main)] mb-2 flex flex-col sm:flex-row sm:items-center sm:flex-wrap items-start gap-1.5 sm:gap-2 lg:gap-2">
+                      <span className="truncate max-w-full lg:whitespace-normal">{cont.topic}</span>
+                      <span className="inline-flex shrink-0 items-center px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)]">
                         {cont.type === 'New Topic' ? (
                           <PlusCircle size={10} className="mr-1" />
                         ) : (
@@ -291,24 +293,24 @@ export default function ContributionHistory() {
                     {cont.status === 'Rejected' && cont.feedback && (
                       <div className="mt-4 p-3 rounded-lg bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 flex gap-3 items-start">
                         <MessageSquare size={16} className="text-red-500 mt-0.5 shrink-0" />
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-0.5">
                             Admin Feedback
                           </p>
-                          <p className="text-sm text-[var(--text-muted)]">{cont.feedback}</p>
+                          <p className="text-sm text-[var(--text-muted)] break-words">{cont.feedback}</p>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-[var(--border-color)] pt-4 sm:pt-0 mt-2 sm:mt-0">
-                    <button className="text-sm font-medium text-[var(--text-brand)] hover:underline underline-offset-4">
+                  <div className="md:text-right flex flex-col md:flex-col lg:flex-col items-stretch md:items-end lg:items-end justify-between border-t md:border-t-0 lg:border-t-0 border-[var(--border-color)] pt-4 md:pt-0 lg:pt-0 mt-4 md:mt-0 lg:mt-0 gap-3 md:gap-0 lg:gap-0 shrink-0 lg:w-40">
+                    <button className="w-full md:w-auto lg:w-auto text-sm font-medium text-[var(--text-main)] md:text-[var(--text-brand)] lg:text-[var(--text-brand)] bg-[var(--bg-secondary)] md:bg-transparent lg:bg-transparent hover:bg-[var(--border-color)] md:hover:bg-transparent lg:hover:bg-transparent border border-[var(--border-color)] md:border-transparent lg:border-transparent rounded-xl md:rounded-none lg:rounded-none py-2.5 md:py-0 lg:py-0 md:hover:underline lg:hover:underline underline-offset-4 transition-all">
                       View Details
                     </button>
                     {cont.status === 'Approved' && (
                       <a
                         href={cont.liveUrl || '#'}
-                        className="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] mt-2 flex items-center gap-1 transition-colors"
+                        className="w-full md:w-auto lg:w-auto justify-center md:justify-end lg:justify-end text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] md:mt-2 lg:mt-2 flex items-center gap-1 transition-colors py-2 md:py-0 lg:py-0 border border-[var(--border-color)] md:border-transparent lg:border-transparent rounded-xl md:rounded-none lg:rounded-none bg-[var(--bg-secondary)] md:bg-transparent lg:bg-transparent"
                       >
                         View Live Article <ChevronRight size={12} />
                       </a>
