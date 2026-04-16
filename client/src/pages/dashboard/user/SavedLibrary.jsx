@@ -53,10 +53,10 @@ export default function SavedLibrary() {
 	const postItems = useMemo(() => library.discussionPosts || [], [library.discussionPosts]);
 
 	return (
-		<main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[var(--bg-primary)]">
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold text-[var(--text-main)] mb-1">Saved Library</h1>
-				<p className="text-[var(--text-muted)]">Your saved articles and discussion posts.</p>
+		<main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden bg-[var(--bg-primary)]">
+			<div className="mb-6 lg:mb-8">
+				<h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-main)] mb-1">Saved Library</h1>
+				<p className="text-sm sm:text-base lg:text-base text-[var(--text-muted)]">Your saved articles and discussion posts.</p>
 			</div>
 
 			{error ? (
@@ -65,16 +65,16 @@ export default function SavedLibrary() {
 				</div>
 			) : null}
 
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-				<div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)] p-6">
-					<div className="flex items-center justify-between mb-4">
-						<div className="flex items-center gap-3">
-							<div className="p-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-brand)]">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 w-full">
+				<div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)] p-4 sm:p-5 lg:p-6 w-full flex flex-col">
+					<div className="flex items-center justify-between mb-3 lg:mb-4 gap-2">
+						<div className="flex items-center gap-2 sm:gap-3 min-w-0">
+							<div className="p-1.5 sm:p-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-brand)] shrink-0">
 								<BookOpen size={18} />
 							</div>
-							<h2 className="text-lg font-bold text-[var(--text-main)]">Saved Articles</h2>
+							<h2 className="text-base sm:text-lg font-bold text-[var(--text-main)] truncate">Saved Articles</h2>
 						</div>
-						<span className="text-sm text-[var(--text-muted)] font-medium">{articleItems.length}</span>
+						<span className="text-xs sm:text-sm text-[var(--text-muted)] font-medium shrink-0">{articleItems.length}</span>
 					</div>
 
 					{loading ? (
@@ -102,15 +102,15 @@ export default function SavedLibrary() {
 					)}
 				</div>
 
-				<div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)] p-6">
-					<div className="flex items-center justify-between mb-4">
-						<div className="flex items-center gap-3">
-							<div className="p-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-brand)]">
+				<div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-soft)] p-4 sm:p-5 lg:p-6 w-full flex flex-col">
+					<div className="flex items-center justify-between mb-3 lg:mb-4 gap-2">
+						<div className="flex items-center gap-2 sm:gap-3 min-w-0">
+							<div className="p-1.5 sm:p-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-brand)] shrink-0">
 								<MessageCircle size={18} />
 							</div>
-							<h2 className="text-lg font-bold text-[var(--text-main)]">Saved Posts</h2>
+							<h2 className="text-base sm:text-lg font-bold text-[var(--text-main)] truncate">Saved Posts</h2>
 						</div>
-						<span className="text-sm text-[var(--text-muted)] font-medium">{postItems.length}</span>
+						<span className="text-xs sm:text-sm text-[var(--text-muted)] font-medium shrink-0">{postItems.length}</span>
 					</div>
 
 					{loading ? (
