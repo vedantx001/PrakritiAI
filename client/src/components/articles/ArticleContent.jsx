@@ -65,7 +65,6 @@ const ArticleContent = ({
 	);
 
 	return (
-	return (
 		<article className="py-2 sm:py-6 mx-auto w-full max-w-prose lg:max-w-3xl">
 			<h1 className="text-3xl md:text-4xl font-extrabold text-[var(--text-main)] mb-4 leading-tight tracking-tight">{title}</h1>
 
