@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { User } from 'lucide-react';
+import { User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../../context/useAuth';
 import { updateProfile } from '../../../services/authService';
 import { buildGenderAvatarUrl } from '../../../utils/avatar';
@@ -16,7 +16,10 @@ const UserProfile = () => {
     age: '',
     gender: 'male',
     password: '',
+    confirmPassword: '',
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -33,6 +36,7 @@ const UserProfile = () => {
       age: user?.age ?? '',
       gender: user?.gender || 'male',
       password: '',
+      confirmPassword: '',
     });
   }, [user]);
 
@@ -84,13 +88,20 @@ const UserProfile = () => {
       };
 
       const nextPassword = String(form.password || '').trim();
+      const nextConfirmPassword = String(form.confirmPassword || '').trim();
+
       if (nextPassword) {
+        if (nextPassword !== nextConfirmPassword) {
+          setErrorMessage('New Password and Confirm Password do not match.');
+          setIsSaving(false);
+          return;
+        }
         updates.password = nextPassword;
       }
 
       await updateProfile({ token, updates });
       await refreshProfile?.();
-      setForm((prev) => ({ ...prev, password: '' }));
+      setForm((prev) => ({ ...prev, password: '', confirmPassword: '' }));
       setSuccessMessage('Profile updated.');
     } catch (error) {
       setErrorMessage(error?.message || 'Failed to update profile.');
@@ -181,14 +192,36 @@ const UserProfile = () => {
               />
             </label>
 
-            <label className="block sm:col-span-2">
+            <label className="block">
               <span className="text-xs text-[var(--text-muted)]">New Password (optional)</span>
+              <div className="relative mt-1">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                  className="w-full px-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--text-brand)] focus:border-transparent pr-10"
+                  placeholder="Leave blank to keep current"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </label>
+
+            <label className="block">
+              <span className="text-xs text-[var(--text-muted)]">Confirm Password</span>
               <input
                 type="password"
-                value={form.password}
-                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                value={form.confirmPassword}
+                onChange={(e) => setForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
                 className="mt-1 w-full px-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--text-brand)] focus:border-transparent"
-                placeholder="Leave blank to keep current password"
+                placeholder="Confirm your new password"
                 autoComplete="new-password"
               />
             </label>

@@ -929,7 +929,7 @@ export default function ArticlesSection() {
             <button
               type="button"
               onClick={() => navigate(backPath)}
-              className="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] transition-colors hidden lg:block"
+              className="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-main)] transition-colors"
               aria-label="Go back"
             >
               <ArrowLeft size={18} />
