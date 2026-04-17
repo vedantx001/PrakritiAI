@@ -66,6 +66,7 @@ const mapReportToHistoryItem = (report) => {
     severityScore,
     dosha: report?.dosha || 'Mixed',
     reasoning: report?.reasoning || '',
+    immediateSolutions: Array.isArray(report?.immediateSolutions) ? report.immediateSolutions.filter(Boolean) : [],
     remedies: Array.isArray(report?.remedies) ? report.remedies.filter(Boolean) : [],
     therapies: Array.isArray(report?.therapies) ? report.therapies : [],
     dietRecommendations: Array.isArray(report?.dietRecommendations) ? report.dietRecommendations.filter(Boolean) : [],

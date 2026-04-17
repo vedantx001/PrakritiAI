@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Leaf, Moon, Sun, Heart, AlertCircle, Coffee, 
-  Brain, Info, Droplet, Sparkles, Activity, ShieldCheck 
+  Brain, Info, Droplet, Sparkles, Activity, ShieldCheck, Zap 
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLocation } from 'react-router-dom';
@@ -17,6 +17,11 @@ const ANALYSIS_DATA = {
     primary: ["Vata", "Pitta"],
     secondary: ["Kapha"]
   },
+  immediate_solutions: [
+    "Drink a cup of warm chamomile or nutmeg milk right away to calm the nervous system.",
+    "Practice 5 minutes of deep, slow belly breathing in a dim room.",
+    "Gently massage the soles of your feet with warm sesame or coconut oil."
+  ],
   herbal_remedies: [
     {
       name: "Ashwagandha (Withania somnifera)",
@@ -159,6 +164,33 @@ export const AyurvedicResultsContent = ({ data = ANALYSIS_DATA }) => {
           </div>
         </div>
       </section>
+
+      {/* 1.5 IMMEDIATE SOLUTIONS */}
+      {data.immediate_solutions && data.immediate_solutions.length > 0 && (
+        <section className="animate-fade-in relative overflow-hidden bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40 rounded-3xl p-6 md:p-8 border-2 border-emerald-500/20 shadow-sm">
+          <div className="absolute top-0 right-0 -mt-8 -mr-8 h-32 w-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center">
+            <div className="flex-shrink-0 bg-emerald-500 text-white p-4 rounded-2xl shadow-lg shadow-emerald-500/30">
+              <Zap size={32} />
+            </div>
+            
+            <div className="flex-1 w-full">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 text-[var(--text-main)] flex items-center gap-2">
+                Immediate Relief Actions
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {data.immediate_solutions.map((solution, idx) => (
+                  <div key={idx} className="bg-[var(--bg-card)]/80 backdrop-blur border border-[var(--border-color)] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="text-emerald-600 dark:text-emerald-400 font-black text-lg mb-1 leading-none">0{idx + 1}</div>
+                    <p className="text-[var(--text-main)] text-sm font-medium leading-relaxed">{solution}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 2. HERBAL REMEDIES GRID */}
       <section>

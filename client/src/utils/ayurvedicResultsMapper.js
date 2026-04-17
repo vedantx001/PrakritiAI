@@ -72,6 +72,7 @@ export const mapAiReportToAyurvedicResultsData = (aiResult) => {
 	return {
 		condition: toDisplayCondition(aiResult?.detected_conditions),
 		dosha_profile: buildDoshaProfile(aiResult),
+		immediate_solutions: asArray(aiResult?.immediate_solutions).filter(Boolean),
 		herbal_remedies: herbalRemedies,
 		therapies,
 		dietary_tips: dietaryTips,

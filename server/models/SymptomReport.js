@@ -56,6 +56,11 @@ const symptomReportSchema = new mongoose.Schema(
       required: true,
     },
 
+    immediateSolutions: {
+      type: [String],
+      default: [],
+    },
+
     therapies: {
       type: [
         {

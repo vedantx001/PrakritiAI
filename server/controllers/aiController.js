@@ -187,6 +187,7 @@ The JSON MUST follow this schema and key names exactly:
 {
   "detected_conditions": [""],
   "dosha_imbalance": ["Vata"|"Pitta"|"Kapha"|"Mixed"],
+  "immediate_solutions": [""],
   "remedies": [
     {
       "title": "",
@@ -211,6 +212,7 @@ The JSON MUST follow this schema and key names exactly:
 Rules:
 - Always include all top-level keys (use empty arrays/strings if unsure).
 - Keep dosha_scores integers 0-10.
+- immediate_solutions must provide exactly 1-3 short, actionable, first-aid style remedies for quick relief right now.
 - Remedies must be objects (not strings). Use 3-7 remedies.
 - Use the provided Duration and Severity (1-10) to calibrate the response: longer/higher severity should lead to more cautious safety notes, clearer reasoning, and more supportive lifestyle/diet guidance.
 - Safety: include a clear disclaimer and non-alarming safety notes; advise consulting a clinician for serious symptoms.`;
@@ -296,6 +298,9 @@ Additional details: ${String(additional_details || "")}`;
         typeof additional_details === "string" ? additional_details.trim() : "",
       dosha: aiResponse?.dosha_imbalance?.[0] || "Mixed",
       reasoning: aiResponse?.reasoning || "",
+      immediateSolutions: Array.isArray(aiResponse?.immediate_solutions)
+        ? aiResponse.immediate_solutions.filter((item) => typeof item === "string")
+        : [],
       remedies: (Array.isArray(aiResponse?.remedies) ? aiResponse.remedies : [])
         .map((item) => (typeof item === "string" ? item : item?.title))
         .filter(Boolean),

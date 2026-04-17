@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Calendar, HeartPulse, Leaf, Sparkles, Utensils, X } from 'lucide-react';
+import { Calendar, HeartPulse, Leaf, Sparkles, Utensils, X, Zap } from 'lucide-react';
 import SeverityBadge from './SeverityBadge';
 
 const ActivitySquare = ({ size }) => (
@@ -77,6 +77,23 @@ export default function HistoryDetailModal({ item, onClose }) {
             </h4>
             <p className="text-[var(--text-main)] leading-relaxed">{item.reasoning || 'No reasoning available.'}</p>
           </section>
+
+          {(Array.isArray(item.immediateSolutions) ? item.immediateSolutions : []).length > 0 && (
+            <section className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40 p-5 rounded-2xl border border-emerald-500/20 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 -mt-8 -mr-8 h-24 w-24 bg-emerald-500/20 rounded-full blur-xl"></div>
+              <h4 className="text-sm font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2 relative z-10">
+                <Zap size={16} /> Immediate Relief
+              </h4>
+              <ul className="space-y-2 relative z-10">
+                {item.immediateSolutions.map((solution, idx) => (
+                  <li key={idx} className="flex gap-3 text-[var(--text-main)] text-sm font-medium">
+                    <span className="text-emerald-600 dark:text-emerald-500 mt-0.5 font-bold">0{idx + 1}</span>
+                    <span className="leading-tight">{solution}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 shadow-sm">

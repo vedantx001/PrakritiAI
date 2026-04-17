@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Bind Tailwind's dark: variant to the .dark class instead of OS media preference */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Defining Color Variables 
   Usage in Tailwind: bg-[var(--bg-primary)] text-[var(--text-main)]
 */
