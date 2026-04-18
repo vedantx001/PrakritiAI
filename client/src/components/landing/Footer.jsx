@@ -1,8 +1,12 @@
 import React from 'react';
-import { Leaf, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
+import logoLight from '../../assets/LightMode_logo_PAI.png';
+import logoDark from '../../assets/DarkMode_logo_PAI.png';
 
 const Footer = () => {
   const currentYear = 2026;
+  const { theme } = useTheme();
 
   const developerLinks = [
     { name: 'GitHub', href: 'https://github.com/vedantx001' },
@@ -18,13 +22,12 @@ const Footer = () => {
 
           {/* Brand */}
           <div className="space-y-4 md:w-1/2">
-            <a href="/" className="flex items-center justify-center md:justify-start gap-2 group">
-              <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors">
-                <Leaf className="w-6 h-6 text-emerald-500" />
-              </div>
-              <span className="text-3xl font-extrabold text-[var(--text-main)] tracking-tight">
-                Prakriti<span className="text-emerald-500">AI</span>
-              </span>
+            <a href="/" className="flex items-center justify-center md:justify-start gap-2 group mb-6">
+              <img
+                src={theme === 'dark' ? logoDark : logoLight}
+                alt="PrakritiAI"
+                className="h-12 sm:h-14 w-auto max-w-[260px] object-contain"
+              />
             </a>
             <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-xs md:max-w-none mx-auto md:mx-0">
               Bridging the gap between ancient Ayurvedic wisdom and modern artificial intelligence.

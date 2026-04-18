@@ -1,7 +1,8 @@
-import { ArrowLeft, Leaf, NotebookText, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react';
+import { ArrowLeft, Leaf, NotebookText, ShieldCheck, Stethoscope } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import logoDark from '../../assets/DarkMode_logo_PAI.png';
 
 const AuthLayout = ({ title, subtitle, children }) => {
 	const location = useLocation();
@@ -19,12 +20,11 @@ const AuthLayout = ({ title, subtitle, children }) => {
 
 					<div className="relative z-10">
 						<Link to="/" className="flex items-center gap-2 group w-fit">
-							<div className="flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl group-hover:bg-white/20 transition-colors">
-								<Leaf className="w-6 h-6 text-emerald-400" />
-							</div>
-							<span className="text-2xl font-bold tracking-tight">
-								Prakriti<span className="text-emerald-400">AI</span>
-							</span>
+							<img
+								src={logoDark}
+								alt="PrakritiAI"
+								className="h-12 w-auto max-w-[280px] object-contain"
+							/>
 						</Link>
 					</div>
 
