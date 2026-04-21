@@ -87,6 +87,24 @@ const Symptoms = () => {
         },
       });
     } catch (err) {
+      if (err?.code === 'AI_UNAVAILABLE') {
+        navigate('/ai-service-unavailable', {
+          state: {
+            mode: 'demo',
+            input: {
+              symptoms: formData.symptoms,
+              age: Number(formData.age),
+              gender: String(formData.gender || '').trim().toLowerCase(),
+              duration: formData.duration,
+              severity: Number(formData.severity),
+              additional_details: formData.additional_details,
+            },
+            returnTo: '/',
+          },
+        });
+        return;
+      }
+
       if (err?.code === 'INVALID_SYMPTOMS') {
         setInvalidExamples(Array.isArray(err.examples) ? err.examples : []);
         setError(err?.message || 'Please describe your symptoms more clearly.');

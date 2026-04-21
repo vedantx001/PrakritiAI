@@ -37,21 +37,29 @@ const toErrorMessage = (payload, fallback) => {
  * @param {string} [options.token] Bearer token (optional; enables saving history).
  */
 export const analyzeSymptoms = async (input, options = {}) => {
-	const response = await fetch(buildUrl('/api/ai/analyze'), {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
-		},
-		body: JSON.stringify({
-			symptoms: input.symptoms,
-			age: Number(input.age),
-			gender: String(input.gender || '').trim().toLowerCase(),
-			duration: input.duration || '',
-			severity: Number.isFinite(Number(input.severity)) ? Number(input.severity) : null,
-			additional_details: input.additional_details || '',
-		}),
-	});
+	let response;
+	try {
+		response = await fetch(buildUrl('/api/ai/analyze'), {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
+			},
+			body: JSON.stringify({
+				symptoms: input.symptoms,
+				age: Number(input.age),
+				gender: String(input.gender || '').trim().toLowerCase(),
+				duration: input.duration || '',
+				severity: Number.isFinite(Number(input.severity)) ? Number(input.severity) : null,
+				additional_details: input.additional_details || '',
+			}),
+		});
+	} catch (fetchErr) {
+		const err = new Error('AI service is temporarily unavailable. Please try again shortly.');
+		err.code = 'AI_UNAVAILABLE';
+		err.cause = fetchErr;
+		throw err;
+	}
 
 	let payload = null;
 	try {
@@ -69,6 +77,11 @@ export const analyzeSymptoms = async (input, options = {}) => {
 		const err = new Error(message);
 		err.status = response.status;
 		err.payload = payload;
+
+		// Upstream AI/provider issues (e.g., OpenRouter down, model fallback exhausted).
+		if ([502, 503, 504].includes(response.status)) {
+			err.code = 'AI_UNAVAILABLE';
+		}
 
 		// AI service strict validation returns 422 with examples.
 		if (response.status === 422) {

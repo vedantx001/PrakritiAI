@@ -7,6 +7,7 @@ import AdminDashboardHome from './pages/dashboard/admin/AdminDashboardHome'
 import UserDashboardHome from './pages/dashboard/user/UserDashboardHome'
 import ArticlesSection from './pages/articles/ArticlesSection'
 import DiscussionsPage from './pages/discussion/DiscussionsPage'
+import AIServiceUnavailablePage from './pages/AIServiceUnavailable'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { AnimatePresence } from 'framer-motion'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
@@ -89,6 +90,7 @@ function App() {
         <Route path="/articles/:seriesSlug/:chapterSlug/:topicSlug" element={<ArticlesSection />} />
         <Route path="/discussions" element={<DiscussionsPage />} />
         <Route path="/ayurvedic-results" element={<AyurvedicResultsPage />} />
+        <Route path="/ai-service-unavailable" element={<AIServiceUnavailablePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>

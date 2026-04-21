@@ -7,9 +7,12 @@ import { AyurvedicResultsContent } from '../../AyurvedicResults';
 import { analyzeSymptoms } from '../../../services/aiService';
 import { mapAiReportToAyurvedicResultsData } from '../../../utils/ayurvedicResultsMapper';
 import { useAuth } from '../../../context/useAuth';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const SymptomsAnalyzer = () => {
   const { user, token } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [resultsData, setResultsData] = useState(null);
@@ -36,6 +39,29 @@ const SymptomsAnalyzer = () => {
       gender: prev.gender || user?.gender || '',
     }));
   }, [user?.age, user?.gender]);
+
+  useEffect(() => {
+    const state = location.state;
+    if (!state) return;
+
+    if (state?.resultsData) {
+      setResultsData(state.resultsData);
+      setShowResults(true);
+      setError('');
+      setShowInvalidFallback(false);
+      setInvalidExamples([]);
+      navigate(location.pathname, { replace: true, state: null });
+      return;
+    }
+
+    if (state?.invalidExamples?.length) {
+      setInvalidExamples(state.invalidExamples);
+      setShowInvalidFallback(true);
+      setError('');
+      setShowResults(false);
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -103,6 +129,25 @@ const SymptomsAnalyzer = () => {
       if (err?.code === 'INVALID_SYMPTOMS') {
         setInvalidExamples(Array.isArray(err.examples) ? err.examples : []);
         setShowInvalidFallback(true);
+        return;
+      }
+
+      if (err?.code === 'AI_UNAVAILABLE') {
+        navigate('/ai-service-unavailable', {
+          state: {
+            mode: 'dashboard',
+            input: {
+              symptoms: formData.symptoms,
+              age,
+              gender,
+              duration: formData.duration,
+              severity: Number(formData.severity),
+              additional_details: formData.additional_details,
+            },
+            token,
+            returnTo: '/dashboard/user/symptoms-analyzer',
+          },
+        });
         return;
       }
 
