@@ -11,11 +11,15 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/useAuth';
+import { useTheme } from '../../../context/ThemeContext';
 import SidebarItem from './SidebarItem';
+import logoLight from '../../../assets/LightMode_logo_PAI.png';
+import logoDark from '../../../assets/DarkMode_logo_PAI.png';
 
 const UserSidebar = ({ isSidebarOpen, activeTab, setActiveTab }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { theme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -28,18 +32,13 @@ const UserSidebar = ({ isSidebarOpen, activeTab, setActiveTab }) => {
       ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 md:translate-x-0 md:w-20'}
     `}
     >
-      <div className="h-16 flex items-center border-b border-[var(--border-color)] px-4">
-        <div className={`flex items-center ${isSidebarOpen ? 'gap-3' : 'justify-center w-full'}`}>
+      <div className="h-16 flex items-center justify-center border-b border-[var(--border-color)] px-4 mr-7">
+        <div className="flex items-center justify-center w-full">
           <img
-            src="/LogoNoBg.png"
+            src={theme === 'dark' ? logoDark : logoLight}
             alt="PrakritiAI"
-            className="w-10 h-10 md:w-12 md:h-12 scale-[2] translate-x-[2px] object-contain bg-transparent shrink-0"
+            className="h-10 md:h-12 w-auto max-w-full object-contain bg-transparent shrink-0"
           />
-          {isSidebarOpen && (
-            <span className="text-xl md:text-2xl font-bold tracking-tight text-[var(--text-main)] leading-none whitespace-nowrap">
-              Prakriti<span className="text-[var(--text-brand)]">AI</span>
-            </span>
-          )}
         </div>
       </div>
 
