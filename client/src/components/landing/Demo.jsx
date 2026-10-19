@@ -91,6 +91,7 @@ const Symptoms = () => {
         navigate('/ai-service-unavailable', {
           state: {
             mode: 'demo',
+            message: err?.message || 'Please try again later. We are facing temporary downtime.',
             input: {
               symptoms: formData.symptoms,
               age: Number(formData.age),

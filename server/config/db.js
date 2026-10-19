@@ -1,4 +1,12 @@
+import dns from "dns";
 import mongoose from "mongoose";
+
+// Resolve DNS SRV lookups using Google/Cloudflare DNS to prevent querySrv ECONNREFUSED on local ISP/routers
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (dnsErr) {
+  console.warn("⚠️ Could not set custom DNS servers:", dnsErr.message);
+}
 
 const connectDB = async () => {
   try {

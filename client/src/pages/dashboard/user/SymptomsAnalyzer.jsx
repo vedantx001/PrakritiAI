@@ -18,6 +18,7 @@ const SymptomsAnalyzer = () => {
   const [resultsData, setResultsData] = useState(null);
   const [error, setError] = useState('');
   const [invalidExamples, setInvalidExamples] = useState([]);
+  const [invalidMessage, setInvalidMessage] = useState('');
   const [showInvalidFallback, setShowInvalidFallback] = useState(false);
 
   const MIN_ANALYSIS_MS = 2500;
@@ -74,6 +75,7 @@ const SymptomsAnalyzer = () => {
     setError('');
     setShowInvalidFallback(false);
     setInvalidExamples([]);
+    setInvalidMessage('');
 
     if (!formData.symptoms) {
       setError('Please enter your symptoms.');
@@ -128,6 +130,7 @@ const SymptomsAnalyzer = () => {
 
       if (err?.code === 'INVALID_SYMPTOMS') {
         setInvalidExamples(Array.isArray(err.examples) ? err.examples : []);
+        setInvalidMessage(err?.message || '');
         setShowInvalidFallback(true);
         return;
       }
@@ -136,6 +139,7 @@ const SymptomsAnalyzer = () => {
         navigate('/ai-service-unavailable', {
           state: {
             mode: 'dashboard',
+            message: err?.message || 'Please try again later. We are facing temporary downtime.',
             input: {
               symptoms: formData.symptoms,
               age,
@@ -180,6 +184,7 @@ const SymptomsAnalyzer = () => {
       <>
         <SymptomsThemeStyles />
         <InvalidSymptomsFallback
+          message={invalidMessage}
           examples={invalidExamples}
           onReturn={() => {
             setShowInvalidFallback(false);

@@ -163,7 +163,7 @@ const PulseRing = ({ delay = '0s', size = 'w-40 h-40' }) => (
 /* ------------------------------------------------------------------ */
 const COUNTDOWN_SECONDS = 30;
 
-const AIServiceUnavailable = ({ onRetry }) => {
+const AIServiceUnavailable = ({ onRetry, message }) => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -247,7 +247,7 @@ const AIServiceUnavailable = ({ onRetry }) => {
 
               {/* Subtext */}
               <p className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed max-w-md mb-8">
-                Our Ayurvedic analysis system is temporarily unavailable due to high demand or provider downtime. Please try again shortly.
+                {message || "Please try again later. We are facing temporary downtime with our AI services."}
               </p>
 
               {/* ---- Helpful extras ---- */}

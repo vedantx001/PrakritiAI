@@ -5,12 +5,11 @@ import SymptomReport from "../models/SymptomReport.js";
 const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 
 const models = [
-  "stepfun/step-3.5-flash:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
-  "meta-llama/llama-3.2-3b-instruct:free",
-  "openai/gpt-oss-120b:free",
-  "qwen/qwen3-next-80b-a3b-instruct:free",
-  "openrouter/hunter-alpha",
+  "nvidia/nemotron-3.5-super-vl:free",
+  "nvidia/nemotron-3.5-lightning:free",
+  "liquid/lfm-2.5-2.6b:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "openrouter/free",
 ];
 
 const DEFAULT_INVALID_SYMPTOM_EXAMPLES = [
@@ -45,13 +44,22 @@ function isMeaningfulSymptomsText(text) {
 
 function extractJSON(text) {
   if (!text || typeof text !== "string") return null;
-  const match = text.match(/\{[\s\S]*\}/);
+
+  // Strip reasoning blocks <think>...</think> if returned by reasoning models
+  const cleaned = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  const match = cleaned.match(/\{[\s\S]*\}/);
   if (!match) return null;
 
   try {
     return JSON.parse(match[0]);
   } catch {
-    return null;
+    // Attempt minor fixes like trailing commas
+    try {
+      const sanitized = match[0].replace(/,\s*([}\]])/g, "$1");
+      return JSON.parse(sanitized);
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -119,6 +127,7 @@ Additional details: ${String(additional_details || "")}`;
         : [];
 
       return {
+        status: "success",
         valid: parsed.valid,
         message: typeof parsed.message === "string" ? parsed.message : "",
         examples,
@@ -129,12 +138,10 @@ Additional details: ${String(additional_details || "")}`;
     }
   }
 
+  // All models failed (network, timeouts, rate limits, 5xx, or 4xx)
   return {
-    valid: false,
-    message:
-      "We couldn't validate your symptoms right now. Please try again in a moment and describe symptoms using clear phrases.",
-    examples: DEFAULT_INVALID_SYMPTOM_EXAMPLES,
-    warning: lastError,
+    status: "unavailable",
+    error: lastError,
   };
 }
 
@@ -143,43 +150,65 @@ Additional details: ${String(additional_details || "")}`;
  * AI Symptom Analysis
  */
 export const analyzeSymptoms = async (req, res) => {
-  const { symptoms, age, gender, duration, severity, additional_details } =
-    req.body;
+  try {
+    const { symptoms, age, gender, duration, severity, additional_details } =
+      req.body;
 
-  if (!symptoms || !age || !gender) {
-    return res.status(400).json({
-      message: "symptoms, age, and gender are required",
+    if (!symptoms || !age || !gender) {
+      return res.status(400).json({
+        message: "symptoms, age, and gender are required",
+      });
+    }
+
+    // Fast local heuristic: reject obvious keyboard mash immediately without waiting for AI
+    if (!isMeaningfulSymptomsText(symptoms)) {
+      return res.status(422).json({
+        detail: {
+          message:
+            "No recognized symptoms were found in your input. Please describe symptoms using clear phrases.",
+          examples: DEFAULT_INVALID_SYMPTOM_EXAMPLES,
+        },
+      });
+    }
+
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
+      return res.status(500).json({
+        message: "OPENROUTER_API_KEY is not configured",
+      });
+    }
+
+    const validation = await validateSymptomsInput({
+      openRouterApiKey,
+      symptoms,
+      additional_details,
     });
-  }
 
-  const openRouterApiKey = process.env.OPENROUTER_API_KEY;
-  if (!openRouterApiKey) {
-    return res.status(500).json({
-      message: "OPENROUTER_API_KEY is not configured",
-    });
-  }
+    // If all validation AI models were down or unreachable
+    if (validation.status === "unavailable") {
+      return res.status(503).json({
+        message: "Please try again later. We are facing temporary downtime.",
+        code: "AI_UNAVAILABLE",
+        details: validation.error,
+      });
+    }
 
-  const validation = await validateSymptomsInput({
-    openRouterApiKey,
-    symptoms,
-    additional_details,
-  });
+    // If AI explicitly analyzed and determined symptoms are invalid/unrecognized
+    if (!validation.valid) {
+      return res.status(422).json({
+        detail: {
+          message:
+            validation.message ||
+            "No recognized symptoms were found in your input. Please describe symptoms using clear phrases.",
+          examples:
+            validation.examples.length > 0
+              ? validation.examples
+              : DEFAULT_INVALID_SYMPTOM_EXAMPLES,
+        },
+      });
+    }
 
-  if (!validation.valid) {
-    return res.status(422).json({
-      detail: {
-        message:
-          validation.message ||
-          "No recognized symptoms were found in your input. Please describe symptoms using clear phrases.",
-        examples:
-          validation.examples.length > 0
-            ? validation.examples
-            : DEFAULT_INVALID_SYMPTOM_EXAMPLES,
-      },
-    });
-  }
-
-  const systemPrompt = `You are an Ayurvedic wellness assistant.
+    const systemPrompt = `You are an Ayurvedic wellness assistant.
 
 Return ONLY valid JSON (no markdown, no extra text).
 
@@ -217,7 +246,7 @@ Rules:
 - Use the provided Duration and Severity (1-10) to calibrate the response: longer/higher severity should lead to more cautious safety notes, clearer reasoning, and more supportive lifestyle/diet guidance.
 - Safety: include a clear disclaimer and non-alarming safety notes; advise consulting a clinician for serious symptoms.`;
 
-  const userPrompt = `User input:
+    const userPrompt = `User input:
 Symptoms: ${String(symptoms)}
 Age: ${Number(age)}
 Gender: ${String(gender)}
@@ -225,109 +254,112 @@ Duration: ${String(duration || "")}
 Severity (1-10): ${Number.isFinite(Number(severity)) ? Number(severity) : ""}
 Additional details: ${String(additional_details || "")}`;
 
-  const messages = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: userPrompt },
-  ];
+    const messages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ];
 
-  let aiResponse = null;
-  let lastError = null;
+    let aiResponse = null;
+    let lastError = null;
 
-  for (const model of models) {
-    try {
-      const response = await axios.post(
-        OPENROUTER_ENDPOINT,
-        {
-          model,
-          messages,
-          temperature: 0.3,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${openRouterApiKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "http://localhost:3000",
-            "X-Title": "PrakritiAI",
+    for (const model of models) {
+      try {
+        const response = await axios.post(
+          OPENROUTER_ENDPOINT,
+          {
+            model,
+            messages,
+            temperature: 0.3,
           },
-          timeout: 20000,
+          {
+            headers: {
+              Authorization: `Bearer ${openRouterApiKey}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "http://localhost:3000",
+              "X-Title": "PrakritiAI",
+            },
+            timeout: 20000,
+          }
+        );
+
+        const aiText = response?.data?.choices?.[0]?.message?.content;
+        const parsed = extractJSON(aiText);
+        if (!parsed) {
+          throw new Error("Invalid JSON response from model");
         }
-      );
 
-      const aiText = response?.data?.choices?.[0]?.message?.content;
-      const parsed = extractJSON(aiText);
-      if (!parsed) {
-        throw new Error("Invalid JSON response from model");
+        aiResponse = parsed;
+        break;
+      } catch (error) {
+        lastError = error.response?.data || error.message;
+        continue;
       }
-
-      aiResponse = parsed;
-      break;
-    } catch (error) {
-      lastError = error.response?.data || error.message;
-      continue;
     }
-  }
 
-  if (!aiResponse) {
-    return res.status(502).json({
-      message: "Failed to analyze symptoms",
-      details: lastError || "All models failed",
-    });
-  }
-
-  let report = null;
-
-  // Save only if logged in
-  if (req.user) {
-    // Extra guard: do not store obvious gibberish/random text in history.
-    if (!isMeaningfulSymptomsText(symptoms)) {
-      return res.json({
-        message: "Analysis completed",
-        result: aiResponse,
-        saved: false,
+    if (!aiResponse) {
+      return res.status(503).json({
+        message: "Please try again later. We are facing temporary downtime.",
+        code: "AI_UNAVAILABLE",
+        details: lastError || "All models failed",
       });
     }
 
-    report = await SymptomReport.create({
-      user: req.user._id,
-      symptoms,
-      age: Number.isFinite(Number(age)) ? Number(age) : undefined,
-      gender: typeof gender === "string" ? gender.trim().toLowerCase() : undefined,
-      duration: typeof duration === "string" ? duration.trim() : "",
-      severity: Number.isFinite(Number(severity)) ? Number(severity) : undefined,
-      additionalDetails:
-        typeof additional_details === "string" ? additional_details.trim() : "",
-      dosha: aiResponse?.dosha_imbalance?.[0] || "Mixed",
-      reasoning: aiResponse?.reasoning || "",
-      immediateSolutions: Array.isArray(aiResponse?.immediate_solutions)
-        ? aiResponse.immediate_solutions.filter((item) => typeof item === "string")
-        : [],
-      remedies: (Array.isArray(aiResponse?.remedies) ? aiResponse.remedies : [])
-        .map((item) => (typeof item === "string" ? item : item?.title))
-        .filter(Boolean),
-      therapies: (Array.isArray(aiResponse?.therapies) ? aiResponse.therapies : [])
-        .map((t) => {
-          const name = typeof t?.name === "string" ? t.name.trim() : "";
-          if (!name) return null;
-          return {
-            name,
-            description:
-              typeof t?.description === "string" ? t.description.trim() : "",
-          };
-        })
-        .filter(Boolean),
-      dietRecommendations: Array.isArray(aiResponse?.diet_tips)
-        ? aiResponse.diet_tips
-        : [],
-      lifestyleRecommendations: Array.isArray(aiResponse?.lifestyle_tips)
-        ? aiResponse.lifestyle_tips
-        : [],
-      isAnonymous: false,
+    let report = null;
+
+    // Save only if logged in
+    if (req.user) {
+      try {
+        report = await SymptomReport.create({
+          user: req.user._id,
+          symptoms,
+          age: Number.isFinite(Number(age)) ? Number(age) : undefined,
+          gender: typeof gender === "string" ? gender.trim().toLowerCase() : undefined,
+          duration: typeof duration === "string" ? duration.trim() : "",
+          severity: Number.isFinite(Number(severity)) ? Number(severity) : undefined,
+          additionalDetails:
+            typeof additional_details === "string" ? additional_details.trim() : "",
+          dosha: aiResponse?.dosha_imbalance?.[0] || "Mixed",
+          reasoning: aiResponse?.reasoning || "",
+          immediateSolutions: Array.isArray(aiResponse?.immediate_solutions)
+            ? aiResponse.immediate_solutions.filter((item) => typeof item === "string")
+            : [],
+          remedies: (Array.isArray(aiResponse?.remedies) ? aiResponse.remedies : [])
+            .map((item) => (typeof item === "string" ? item : item?.title))
+            .filter(Boolean),
+          therapies: (Array.isArray(aiResponse?.therapies) ? aiResponse.therapies : [])
+            .map((t) => {
+              const name = typeof t?.name === "string" ? t.name.trim() : "";
+              if (!name) return null;
+              return {
+                name,
+                description:
+                  typeof t?.description === "string" ? t.description.trim() : "",
+              };
+            })
+            .filter(Boolean),
+          dietRecommendations: Array.isArray(aiResponse?.diet_tips)
+            ? aiResponse.diet_tips
+            : [],
+          lifestyleRecommendations: Array.isArray(aiResponse?.lifestyle_tips)
+            ? aiResponse.lifestyle_tips
+            : [],
+          isAnonymous: false,
+        });
+      } catch (dbErr) {
+        console.error("Failed to save symptom report to MongoDB:", dbErr.message);
+      }
+    }
+
+    return res.json({
+      message: "Analysis completed",
+      result: aiResponse,
+      saved: !!report,
+    });
+  } catch (err) {
+    console.error("Error in analyzeSymptoms controller:", err);
+    return res.status(500).json({
+      message: "Internal server error occurred while analyzing symptoms.",
+      error: err.message,
     });
   }
-
-  return res.json({
-    message: "Analysis completed",
-    result: aiResponse,
-    saved: !!report,
-  });
 };

@@ -69,7 +69,7 @@ export default function InvalidSymptomsFallback({
 
         {/* Text Content */}
         <h1 className="text-3xl sm:text-4xl font-serif text-stone-800 mb-4 tracking-tight">
-          We couldn't read your energy.
+          We couldn't find your energy.
         </h1>
         
         <p className="text-stone-600 text-lg sm:text-xl mb-8 leading-relaxed max-w-lg mx-auto">

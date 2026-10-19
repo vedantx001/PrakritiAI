@@ -13,6 +13,7 @@ const AIServiceUnavailablePage = () => {
   const input = state?.input;
   const token = state?.token;
   const returnTo = state?.returnTo || '/';
+  const message = state?.message;
 
   const onRetry = async () => {
     if (!input) {
@@ -52,7 +53,7 @@ const AIServiceUnavailablePage = () => {
     }
   };
 
-  return <AIServiceUnavailable onRetry={onRetry} />;
+  return <AIServiceUnavailable onRetry={onRetry} message={message} />;
 };
 
 export default AIServiceUnavailablePage;
